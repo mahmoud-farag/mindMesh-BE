@@ -1,6 +1,6 @@
 import { STATUS_CODES } from '../common/index.js';
 import { documentService } from '../services/index.js';
-import { customErrors } from '../utils/index.js';
+import { customErrors, handleSuccessResponse } from '../utils/index.js';
 
 
 const { BadRequestError } = customErrors;
@@ -11,14 +11,14 @@ documentController.uploadDocument = async (req, res, next) => {
   try {
 
 
-    if (!req?.body?.title) 
+    if (!req?.body?.title)
       throw new BadRequestError('Pdf File title not provided in the payload');
 
-    if (!req?.file) 
+    if (!req?.file)
       throw new BadRequestError('Pdf File not provided in the payload');
 
     const params = {
-      payload: req.body ,
+      payload: req.body,
       file: req.file,
       userId: req.user._id,
     };
@@ -26,13 +26,10 @@ documentController.uploadDocument = async (req, res, next) => {
     const { document } = await documentService.uploadPdfDocument(params);
 
 
-    res.status(STATUS_CODES.CREATED).json({
-      success: true,
-      data: { document },
-      message: 'Your request under processing....',
-    })
+    return handleSuccessResponse({ res, data: { document }, message: 'Your request under processing....', statusCode: STATUS_CODES.CREATED });
 
-  } catch(error) {
+  } catch (error) {
+    
     next(error);
   }
 }
@@ -42,13 +39,13 @@ documentController.getDocuments = async (req, res, next) => {
 
     if (!req?.user?._id)
       throw BadRequestError('Action not allowed');
-    
+
     const result = await documentService.getAllDocuments({ userId: req.user._id });
 
-    res.status(STATUS_CODES.OK).json({ success: true, data: { ...result  } });
+    return handleSuccessResponse({ res, data: { ...result } });
 
-    
-  } catch(error) {
+
+  } catch (error) {
 
     next(error);
 
@@ -57,35 +54,37 @@ documentController.getDocuments = async (req, res, next) => {
 
 documentController.getDocument = async (req, res, next) => {
   try {
-    
 
-    
+
+
     if (!req?.params?.documentId)
       throw new BadRequestError('Document Id is missing');
 
-    const result = await documentService.getDocument({documentId: req.params.documentId});
+    const result = await documentService.getDocument({ documentId: req.params.documentId });
 
 
-    res.status(STATUS_CODES.OK).json({ success: true,  data : { ...result } });
+    return handleSuccessResponse({ res, data: { ...result } });
 
-    
-  } catch(error) {
+
+  } catch (error) {
+
     next(error);
   }
 }
 
 documentController.deleteDocument = async (req, res, next) => {
   try {
- 
+
     if (!req?.params?.documentId)
       throw new BadRequestError('Document Id is missing');
 
-    await documentService.deleteDocument({documentId: req.params.documentId});
+    await documentService.deleteDocument({ documentId: req.params.documentId });
 
 
-    res.status(STATUS_CODES.OK).json({ success: true, message: 'Document successfully deleted' });
+    return handleSuccessResponse({ res, message: 'Document successfully deleted' });
 
-  } catch(error) {
+  } catch (error) {
+
     next(error);
   }
 }

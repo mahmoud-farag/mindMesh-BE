@@ -152,7 +152,7 @@ documentService.deleteDocument = async (params = {}) => {
 
     const { documentId } = params;
 
-    const query = { _id: documentId };
+    const query = { _id: documentId, status: { $ne: 'deleted' } };
 
     const document = await Document.findOne(query).select('_id').lean();
 

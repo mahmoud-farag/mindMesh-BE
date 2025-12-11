@@ -16,9 +16,9 @@ const FlashCardSchema = new mongoose.Schema({
 
   cards: [
     {
-      question: {type: String, required: true},
+      question: { type: String, required: true },
       
-      answer: {type: String, required: true},
+      answer: { type: String, required: true },
       
       difficulty: {
         type: String,
@@ -26,20 +26,20 @@ const FlashCardSchema = new mongoose.Schema({
         default: 'medium',
       },
 
-      lastReviewed: { type: Date, default: null},
+      lastReviewed: { type: Date, default: null },
 
-      reviewCount: { type: Number, default: 0},
+      reviewCount: { type: Number, default: 0 },
       
-      isStarred: { type: Boolean, default: false},
+      isStarred: { type: Boolean, default: false },
 
 
     }
   ],
 
-}, {timestamps: true});
+}, { timestamps: true });
 
 
-FlashCardSchema.index({user: 1, docuemnt: 1});
+FlashCardSchema.index({ user: 1, docuemnt: 1 });
 
 
 const FlashCard = mongoose.model('FlashCard', FlashCardSchema);

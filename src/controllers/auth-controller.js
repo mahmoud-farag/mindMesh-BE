@@ -1,6 +1,4 @@
-import { response } from 'express';
-import { STATUS_CODES } from '../common/index.js';
-import { customErrors } from '../utils/index.js';
+import { customErrors, handleSuccessResponse } from '../utils/index.js';
 import { authService } from '../services/index.js';
 
 
@@ -17,15 +15,12 @@ authController.login = async (req, res, next) => {
 
     const { user, token } = await authService.login(email, username, password);
 
-    res.status(STATUS_CODES.OK).json({
-      success: true,
-      data: { user, token },
-      message: 'Success login',
-    })
+
+    return handleSuccessResponse({ res, data: { user, token }, message: 'Success login' });
 
 
   } catch (error) {
-    console.log('Error happen while logging: \n', error);
+
     next(error);
   }
 };
@@ -34,21 +29,15 @@ authController.login = async (req, res, next) => {
 
 authController.register = async (req, res, next) => {
   try {
-    // *) validate Required data.
+
     validateReqBody(req.body);
 
     const { user, token } = await authService.register(req.body);
 
-    res.status(STATUS_CODES.CREATED).json({
-      success: true,
-      data: {
-        user,
-        token,
-      },
-      message: 'User registered successfully',
-    });
+    return handleSuccessResponse({ res, data: { user, token }, message: 'User registered successfully', statusCode: STATUS_CODES.CREATED });
 
   } catch (error) {
+
     next(error);
   }
 };
@@ -85,14 +74,10 @@ authController.getUserProfile = async (req, res, next) => {
 
     const user = await authService.getUserProfile(userId);
 
-    res.status(STATUS_CODES.OK).json({
-      success: true,
-      data: { user },
-    });
+
+    return handleSuccessResponse({ res, data: { user } });
 
   } catch (error) {
-
-    console.error('Error while getting the user profile');
 
     next(error);
 
@@ -127,10 +112,7 @@ authController.changePassword = async (req, res, next) => {
 
     await authService.changePassword(userId, currentPassword, newPassword);
 
-    res.status(STATUS_CODES.OK).json({
-      success: true,
-      message: 'Password updated successfully',
-    });
+    return handleSuccessResponse({ res, message: 'Password updated successfully' });
 
   } catch (error) {
 

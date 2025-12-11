@@ -9,7 +9,7 @@ import cors from 'cors';
 import connectToDB from './src/config/db.js'
 import { errorHandler } from './src/middlewares/index.js';
 import { customErrors } from './src/utils/index.js';
-import { authRoute, documentRoute } from './src/routes/index.js';
+import { authRoute, documentRoute, cardRoute, aiRoute } from './src/routes/index.js';
 
 const { NotFoundError } = customErrors;
 
@@ -28,6 +28,9 @@ app.use(express.json());
 // Routes
 app.use('/api/auth', authRoute);
 app.use('/api/document', documentRoute);
+app.use('/api/card', cardRoute);
+app.use('/api/ai', aiRoute);
+
 
 // not found route
 
