@@ -48,6 +48,10 @@ QuizService.getQuizById = async (params = {}) => {
         if (!quiz)
             throw new NotFoundError('Quiz not found');
 
+        await Quiz.updateOne(
+            { _id: quizId },
+            { $set: { lastAttempted: new Date() } }
+        );
 
         return { quiz };
 

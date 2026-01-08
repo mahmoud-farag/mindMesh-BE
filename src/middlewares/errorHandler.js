@@ -28,8 +28,8 @@ const errorHandler = (error, req, res, next) => {
       return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: error.message });
     }
 
-    if (error.code === 11000)
-      return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: 'duplicated fields found in our db, review your data and make sure it is unique' });
+    // if (error.code === 11000)
+    //   return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: 'duplicated fields found in our db, review your data and make sure it is unique' });
 
     if (error.name === 'TokenExpiredError')
       return res.status(STATUS_CODES.UNAUTHORIZED).json({ success: false, message: 'Token has expired. Please login again.' });

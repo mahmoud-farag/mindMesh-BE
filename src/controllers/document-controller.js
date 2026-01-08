@@ -59,7 +59,7 @@ documentController.getDocument = async (req, res, next) => {
     const result = await documentService.getDocument({ documentId: req.params.documentId });
 
 
-    return handleSuccessResponse({ res, data: { ...result } });
+    return handleSuccessResponse({ res, data: { ...result }, message: 'Document Loading successfully' });
 
 
   } catch (error) {

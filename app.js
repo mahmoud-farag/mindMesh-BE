@@ -26,23 +26,20 @@ app.use(express.json());
 
 // Routes
 app.use('/api/auth', authRoute);
-app.use('/api/document', documentRoute);
-app.use('/api/flashcard', flashcardRoute);
+app.use('/api/documents', documentRoute);
+app.use('/api/flashcards', flashcardRoute);
 app.use('/api/ai', aiRoute);
 app.use('/api/quiz', quizRoute);
 app.use('/api/dashboard', dashboardRoute);
 
 
 // not found route
-
 app.use((req, res, next) => {
   next(new NotFoundError('Route not found'));
 })
 
 
 app.use(errorHandler);
-
-
 
 
 app.listen(PORT, async () => {
@@ -54,7 +51,7 @@ app.listen(PORT, async () => {
   } catch (error) {
     console.log('DB connection Error:', error);
 
-    // turn off the web server gracfully
+    // turn off the web server gracefully
     process.exit(1);
   }
 });
@@ -65,6 +62,15 @@ app.listen(PORT, async () => {
 process.on('unhandledRejection', (error) => {
 
   console.error('UNHANDLED REJECTION!  Shutting down...');
+  console.error(error);
+  process.exit(1);
+
+})
+
+
+process.on('uncaughtException', (error) => {
+
+  console.error('UNCAUGHT EXCEPTION!  Shutting down...');
   console.error(error);
   process.exit(1);
 

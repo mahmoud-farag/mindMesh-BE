@@ -250,8 +250,8 @@ class GeminiService {
             options.push(trimmed.substring(5).trim());
 
           } else if (trimmed.startsWith('Correct:')) {
-             correctAnswer = trimmed.substring(8).trim();
-    
+            correctAnswer = trimmed.substring(8).trim();
+
           } else if (trimmed.startsWith('Explanation:')) {
             explanation = trimmed.substring(12).trim();
 
@@ -372,9 +372,7 @@ class GeminiService {
       const response = await this.#geminiClient.models.generateContent({ model: this.#modelType, contents: prompt });
 
 
-      console.log('---response---');
-      console.log(response);
-      
+
       const generatedText = response.text;
 
       return generatedText;
@@ -411,15 +409,69 @@ class GeminiService {
 
       console.error('generateEmbedding:: Gemini API error:', error);
 
-
       let errMsg = 'Failed to generate embedding';
 
       if ([429, 503].includes(error.code))
-        errMsg = error.message
-
+        errMsg = error.message;
 
       throw new InternalServerError(errMsg);
     }
+  }
+
+  async generateEmbeddingWithRetry(text, options = {}) {
+
+    const maxRetries = options.maxRetries ?? 3;
+    const baseDelay = options.baseDelay ?? 1000; // 1 second
+
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+
+        const result = await this.#geminiClient.models.embedContent({
+          model: "text-embedding-004",
+          contents: text,
+        });
+
+        if (!result.embeddings || result.embeddings.length === 0) {
+          throw new Error("No embedding returned from Gemini");
+        }
+
+        return result.embeddings[0].values;
+
+      } catch (error) {
+
+        const isRetryable = this.#isRetryableError(error);
+
+        if (isRetryable && attempt < maxRetries) {
+          
+          const delay = baseDelay * Math.pow(2, attempt - 1);
+
+          console.log(`generateEmbeddingWithRetry:: Attempt ${attempt} failed, retrying in ${delay}ms...`);
+
+          await this.#sleep(delay);
+          continue;
+        }
+
+        // if the error not retirable , then break the loop and finish
+        break;
+      }
+    }
+  }
+
+  #isRetryableError(error) {
+    // Network errors
+    if (error.message?.includes('fetch failed')) return true;
+    if (error.message?.includes('ECONNRESET')) return true;
+    if (error.message?.includes('ETIMEDOUT')) return true;
+    if (error.message?.includes('socket hang up')) return true;
+
+    // Rate limit or server overload
+    if ([429, 500, 502, 503, 504].includes(error.code)) return true;
+
+    return false;
+  }
+
+  #sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
 
 }

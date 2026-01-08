@@ -1,3 +1,4 @@
+import { param } from 'express-validator';
 import { User } from '../models/index.js';
 import { customErrors, generateToken, matchPassword } from '../utils/index.js';
 
@@ -5,48 +6,65 @@ const { BadRequestError, InternalServerError, NotFoundError } = customErrors;
 
 const authService = {};
 
-authService.login = async (email, username, password) => {
+authService.login = async ( params = {}) => {
 
-    const query = { $or: [] };
+   try {
+        const { email, username, password } = params;
 
-    if (email) query.$or.push({ email });
+        
+        const query = { $or: [] };
 
-    if (username) query.$or.push({ username });
+        if (email) query.$or.push({ email });
 
-    const user = await User.findOne(query).select('+password').lean();
+        if (username) query.$or.push({ username });
 
-    if (!user) 
-        throw new BadRequestError('User Not found');
+        const user = await User.findOne(query).select('+password').lean();
 
-    if ((email && email !== user.email) || (username && username !== user.username))
-        throw new BadRequestError('Wrong Credentials');
+        if (!user) 
+            throw new BadRequestError('User Not found');
 
-    const isPasswordMatching = await matchPassword(password, user.password);
 
-    if (!isPasswordMatching) 
-        throw new BadRequestError('Wrong Credentials');
+        if ((email && email !== user.email) || (username && username !== user.username))
+            throw new BadRequestError('Wrong Credentials');
 
-    const token = generateToken({ userId: user._id });
+        const isPasswordMatching = await matchPassword(password, user.password);
 
-    delete user.password;
+        if (!isPasswordMatching) 
+            throw new BadRequestError('Wrong Credentials');
 
-    return { user, token };
+
+        const accessToken = generateToken({ userId: user._id });
+
+        delete user.password;
+
+        return { user, accessToken }; 
+
+   } catch(error) {
+
+        throw error;
+   }
 };
 
 authService.register = async (userData) => {
+    try {
+        const { username, email, password, profileImage } = userData;
 
-    const { username, email, password, profileImage } = userData;
-
-    const newUser = await User.create({ username, email, password, profileImage });
+        const newUser = await User.create({ username, email, password, profileImage });
+        
+        // const userId = newUser._id;
     
-    const userId = newUser._id;
+        // const accessToken = generateToken({ userId: userId });
+    
+        // return { user: { username: newUser.username, _id: userId } };
+    } catch(error) {
 
-    const token = generateToken({ userId: userId });
-
-    return {
-        user: { username: newUser.username, _id: userId },
-        token,
-    };
+        if (error.code === 11000) {
+            throw new BadRequestError('User Already exist with this credentials');
+        } else {
+            throw error;
+        }
+    }
+   
 };
 
 authService.getUserProfile = async (userId) => {
@@ -72,7 +90,7 @@ authService.changePassword = async (userId, currentPassword, newPassword) => {
     const isPasswordMatching = await matchPassword(currentPassword, user.password);
 
     if (!isPasswordMatching) 
-        throw new BadRequestError('Wrong password');
+        throw new BadRequestError('Your current password is not correct.');
 
     user.password = newPassword;
 

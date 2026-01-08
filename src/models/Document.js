@@ -37,8 +37,11 @@ const DocumentSchema = new mongoose.Schema({
 
   uploadDate: { type: Date, default: Date.now },
 
-  lastAccess: { type: Date, default: Date.now },
+  lastAccessed: { type: Date, default: Date.now },
 
+  flashcardCount: { type: Number, default: 0 },
+  quizCount: { type: Number, default: 0 },
+  
   status: {
     type: String,
     enum: ['processing', 'ready', 'failed', 'deleted'],
@@ -47,7 +50,7 @@ const DocumentSchema = new mongoose.Schema({
 
 }, { timestamps: true });
 
-
+ 
 DocumentSchema.index({ user: 1, uploadDate: -1 });
 
 

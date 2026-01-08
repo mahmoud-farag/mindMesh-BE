@@ -49,8 +49,10 @@ const QuizSchema = new mongoose.Schema({
   totalQuestions: { type: Number, required: true },
 
   completedAt: { type: Date, },
-  
+
   isCompleted: { type: Boolean, default: false },
+
+  lastAttempted: { type: Date },
 
   status: { type: String, enum: ['active', 'deleted'], default: 'active' },
 

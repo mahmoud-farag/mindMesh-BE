@@ -53,6 +53,9 @@ aiService.generateFlashcards = async (params = {}) => {
         const flashcardsDoc = await FlashCard.create({ user: userId, document: documentId, flashcards });
 
 
+        // update the flashcardsSetCounter 
+        await Document.updateOne({ _id: documentId }, { $inc: { flashcardCount: 1 } });
+
         return { flashcards: flashcardsDoc };
 
     } catch (error) {
@@ -85,6 +88,9 @@ aiService.generateQuiz = async (params = {}) => {
         };
 
         const quizDocument = await Quiz.create(newQuizObject);
+
+        await Document.updateOne({ _id: documentId }, { $inc: { quizCount: 1 } });
+
 
         return { quizDocument };
 

@@ -20,7 +20,7 @@ documentService.uploadPdfDocument = async (params = {}) => {
   try {
     console.log('documentService.uploadPdfDocument:: started');
 
-    const { payload, file, userId } = params;
+    let { payload, file, userId } = params;
 
 
     const originalFileName = file.originalname.replace('.pdf', '');
@@ -30,7 +30,9 @@ documentService.uploadPdfDocument = async (params = {}) => {
     const fileName = `${originalFileName}_${Date.now()}.pdf`;
 
     // * create a new record in the db
-    const fileSize = (file.size / (1024 * 1024)).toFixed(4);
+    // const fileSize = (file.size / (1024 * 1024)).toFixed(4);
+    const fileSize = file.size ;
+
 
     const document = await Document.create({
       title: payload.title,
@@ -51,9 +53,11 @@ documentService.uploadPdfDocument = async (params = {}) => {
     uploadPdfFileToS3({ mimeType, fileBuffer: file.buffer, folder, fileName });
 
 
+    const buffer = file.buffer;
+    file = null; // Release original immediately To avoid memoery leaks
     // * do the background job for text extractation and chunks
     // processPdf({ file, documentId: document._id, userId });
-    processPdfV2({ file, documentId: document._id, userId });
+    processPdfV2({ buffer, documentId: document._id, userId });
 
 
     return { document };
@@ -179,13 +183,13 @@ async function processPdf(params = {}) {
 
 async function processPdfV2(params = {}) {
 
-  let { file, documentId, userId } = params;
+  let { buffer, documentId, userId } = params;
   const BATCH_SIZE = 300;
 
   try {
 
     // * parse the pdf file for text extraction
-    const result = await pdfParserUtils.parseV2({ fileBuffer: file.buffer });
+    const result = await pdfParserUtils.parseV2({ fileBuffer: buffer });
 
     // * upload the text into the S3
     const folder = S3Folders.text_Files;
@@ -254,9 +258,6 @@ async function processPdfV2(params = {}) {
 
     await Document.findOneAndUpdate({ _id: documentId }, { status: 'failed' });
 
-  } finally {
-
-    file = null;
   }
 }
 
@@ -270,7 +271,7 @@ async function handleChunkBatch(params = {}) {
   const embeddingPromiseArr = [];
 
   for (const chunk of batch) {
-    embeddingPromiseArr.push(geminiService.generateEmbedding(chunk.content));
+    embeddingPromiseArr.push(geminiService.generateEmbeddingWithRetry(chunk.content));
   }
 
 
@@ -314,8 +315,19 @@ documentService.getDocument = async (params = {}) => {
       status: { $ne: 'deleted' },
     };
 
-    const document = await Document.findOne(query).select('-chunks -extractedText').lean();
+    const document = await Document.findOne(query)
+      .select('-chunks -extractedText')
+      .populate({path:'user', select:'username'}).lean();
 
+    if (document?.S3Data?.fileName && document?.S3Data?.folder) {
+
+      const {folder, fileName } = document.S3Data;
+      const expiresIn = 86400; // 1 Day
+
+      const signedUrl = await awsService.getSignedUrl(folder, fileName, {expiresIn});
+      document.S3FileUrl= signedUrl;
+    }
+    
     if (!document)
       throw new NotFoundError('Document not Found');
 
@@ -360,9 +372,9 @@ documentService.getAllDocuments = async (params = {}) => {
     const query = {
       user: userId,
       status: { $ne: 'deleted' },
-    };
+    }; 
 
-    const documents = await Document.find(query).select('-chunks -extractedText').lean();
+    const documents = await Document.find(query).select('-extractedText').lean();
 
 
     return { documents };

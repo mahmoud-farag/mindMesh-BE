@@ -16,8 +16,6 @@ dashboardService.getDashboardData = async (params = {}) => {
 
 
     const user = new mongoose.Types.ObjectId(userId);
-    console.log('---user---');
-    console.log(user);
 
     const totalDocuments = await Document.countDocuments({ user, status: 'ready' });
     const totalFlashcardSets = await FlashCard.countDocuments({ user });
@@ -73,13 +71,13 @@ dashboardService.getDashboardData = async (params = {}) => {
     const recentDocuments = await Document.find({ user, status: { $ne: 'failed' } })
       .sort({ lastAccessed: -1 })
       .limit(5)
-      .select('title originalFileName lastAccess status');
+      .select('title originalFileName lastAccessed status');
 
-    const recentQuizzes = await Quiz.find({ user, status: 'active' })
-      .sort({ createdAt: -1 })
+    const recentQuizzes = await Quiz.find({ user, status: 'active', lastAttempted: { $exists: true } })
+      .sort({ lastAttempted: -1 })
       .limit(5)
       .populate('document', 'title')
-      .select('title score totalQuestions completedAt');
+      .select('title score totalQuestions completedAt lastAttempted');
 
 
 

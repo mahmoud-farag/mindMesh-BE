@@ -1,5 +1,6 @@
 import { customErrors, handleSuccessResponse } from '../utils/index.js';
 import { authService } from '../services/index.js';
+import { STATUS_CODES } from '../common/index.js';
 
 
 const authController = {};
@@ -13,10 +14,10 @@ authController.login = async (req, res, next) => {
 
     const { email, username, password } = req.body;
 
-    const { user, token } = await authService.login(email, username, password);
+    const { user, accessToken } = await authService.login({email, username, password});
 
 
-    return handleSuccessResponse({ res, data: { user, token }, message: 'Success login' });
+    return handleSuccessResponse({ res, data: { user, accessToken }, message: 'You logged in successfully.' });
 
 
   } catch (error) {
@@ -32,9 +33,9 @@ authController.register = async (req, res, next) => {
 
     validateReqBody(req.body);
 
-    const { user, token } = await authService.register(req.body);
+    await authService.register(req.body);
 
-    return handleSuccessResponse({ res, data: { user, token }, message: 'User registered successfully', statusCode: STATUS_CODES.CREATED });
+    return handleSuccessResponse({ res, message: 'Registered successfully, now you can login', statusCode: STATUS_CODES.CREATED });
 
   } catch (error) {
 
