@@ -90,16 +90,17 @@ class GeminiService {
 
 
     } catch (error) {
-
       console.error('generateFlashcards:: Gemini API error:\n', error);
 
       let errMsg = 'Failed to generate flashcards';
+      
+      if (error.status === 429) {
+        errMsg= 'You exceeded your current quota, try again in another time';
+      }
 
-      if ([429, 503].includes(error.code))
-        errMsg = error.message;
+      if ([503].includes(error.status)) errMsg = error.message;
 
       throw new InternalServerError(errMsg);
-
     }
 
   }

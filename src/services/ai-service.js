@@ -175,17 +175,27 @@ aiService.chat = async (params = {}) => {
 
 
 
-        const promises = [];
+        const questionObj = await ChatHistory.create({
+          eventDate: new Date(),
+          eventType,
+          user: userId,
+          document: documentId,
+          message: userQuestionHistoryRecord,
+        });
+        const answerObj = await ChatHistory.create({
+          eventDate: new Date(),
+          eventType,
+          user: userId,
+          document: documentId,
+          message: geminiAnswerHistoryRecord,
+        });
 
-        promises.push(ChatHistory.create({ eventDate: new Date() , eventType, user: userId, document: documentId, message: userQuestionHistoryRecord }));
-        promises.push(ChatHistory.create({ eventDate: new Date() , eventType, user: userId, document: documentId, message: geminiAnswerHistoryRecord }));
-
-
-        await Promise.all(promises);
-
-        
-
-        return { question, answer, relevantChunks, documentId: documentId };
+        return {
+          question: questionObj,
+          answer: answerObj,
+          relevantChunks,
+          documentId: documentId,
+        };
     
 
     } catch (error) {
