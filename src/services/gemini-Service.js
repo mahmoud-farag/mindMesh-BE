@@ -93,12 +93,13 @@ class GeminiService {
       console.error('generateFlashcards:: Gemini API error:\n', error);
 
       let errMsg = 'Failed to generate flashcards';
-      
+
       if (error.status === 429) {
-        errMsg= 'You exceeded your current quota, try again in another time';
+        errMsg = 'You exceeded your current quota, try again in another time';
+      } else if (error.status === 503) {
+        errMsg = 'The model is overloaded. Please try again later';
       }
 
-      if ([503].includes(error.status)) errMsg = error.message;
 
       throw new InternalServerError(errMsg);
     }
@@ -287,8 +288,11 @@ class GeminiService {
 
       let errMsg = 'Failed to generate quiz';
 
-      if ([429, 503].includes(error.code))
-        errMsg = error.message;
+      if (error.status === 429) {
+        errMsg = 'You exceeded your current quota, try again in another time';
+      } else if (error.status === 503) {
+        errMsg = 'The model is overloaded. Please try again later';
+      }
 
       throw new InternalServerError(errMsg);
 
@@ -319,8 +323,11 @@ class GeminiService {
 
       let errMsg = 'Failed to generate summary';
 
-      if ([429, 503].includes(error.code))
-        errMsg = error.message;
+      if (error.status === 429) {
+        errMsg = 'You exceeded your current quota, try again in another time';
+      } else if (error.status === 503) {
+        errMsg = 'The model is overloaded. Please try again later';
+      }
 
       throw new InternalServerError(errMsg);
     }
@@ -351,8 +358,11 @@ class GeminiService {
 
       let errMsg = 'Failed to process chat request';
 
-      if ([429, 503].includes(error.code))
-        errMsg = error.message;
+      if (error.status === 429) {
+        errMsg = 'You exceeded your current quota, try again in another time';
+      } else if (error.status === 503) {
+        errMsg = 'The model is overloaded. Please try again later';
+      }
 
       throw new InternalServerError(errMsg);
 
@@ -384,8 +394,11 @@ class GeminiService {
 
       let errMsg = 'Failed to explain concept';
 
-      if ([429, 503].includes(error.code))
-        errMsg = error.message;
+      if (error.status === 429) {
+        errMsg = 'You exceeded your current quota, try again in another time';
+      } else if (error.status === 503) {
+        errMsg = 'The model is overloaded. Please try again later';
+      }
 
       throw new InternalServerError(errMsg);
     }
@@ -412,8 +425,11 @@ class GeminiService {
 
       let errMsg = 'Failed to generate embedding';
 
-      if ([429, 503].includes(error.code))
-        errMsg = error.message;
+      if (error.status === 429) {
+        errMsg = 'You exceeded your current quota, try again in another time';
+      } else if (error.status === 503) {
+        errMsg = 'The model is overloaded. Please try again later';
+      }
 
       throw new InternalServerError(errMsg);
     }
@@ -443,7 +459,7 @@ class GeminiService {
         const isRetryable = this.#isRetryableError(error);
 
         if (isRetryable && attempt < maxRetries) {
-          
+
           const delay = baseDelay * Math.pow(2, attempt - 1);
 
           console.log(`generateEmbeddingWithRetry:: Attempt ${attempt} failed, retrying in ${delay}ms...`);

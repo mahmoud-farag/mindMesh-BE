@@ -109,7 +109,7 @@ aiService.generateSummary = async (params = {}) => {
         const result = await geminiService.generateSummary({ document });
 
 
-        return result;
+        return { summary: result };
 
     } catch (error) {
 
@@ -121,14 +121,14 @@ aiService.chat = async (params = {}) => {
     try {
 
         const { documentId, userId, question } = params;
-        
+
         await getDocument(documentId, userId);
 
         // * Generate embedding for the question
         const questionEmbedding = await geminiService.generateEmbedding(question);
 
         // * Vector Search for relevant chunks
-        const  chunks = await getRelevantChunks({ emdbeddingQuery : questionEmbedding, documentId, userId });
+        const chunks = await getRelevantChunks({ emdbeddingQuery: questionEmbedding, documentId, userId });
         // const chunks = await DocumentChunk.aggregate([
         //     {
         //         $vectorSearch: {
@@ -160,7 +160,7 @@ aiService.chat = async (params = {}) => {
         const context = chunks.map((chunk, index) => `[Chunk ${index + 1} (Score: ${chunk.score.toFixed(2)})]\n${chunk.content}`).join('\n\n');
 
         // * Ask Gemini
-        const answer =  await geminiService.chatWithContext({ context, question });
+        const answer = await geminiService.chatWithContext({ context, question });
 
 
         // * handle history 
@@ -168,35 +168,35 @@ aiService.chat = async (params = {}) => {
         const eventType = statics.historyTypes.find(item => item.name === 'chat').value;
 
 
-        const relevantChunks = chunks.map( chunk => chunk._id);
+        const relevantChunks = chunks.map(chunk => chunk._id);
 
-        const userQuestionHistoryRecord = { role : 'user', question, relevantChunks };
-        const geminiAnswerHistoryRecord = { role : 'assistant', answer, relevantChunks };
+        const userQuestionHistoryRecord = { role: 'user', question, relevantChunks };
+        const geminiAnswerHistoryRecord = { role: 'assistant', answer, relevantChunks };
 
 
 
         const questionObj = await ChatHistory.create({
-          eventDate: new Date(),
-          eventType,
-          user: userId,
-          document: documentId,
-          message: userQuestionHistoryRecord,
+            eventDate: new Date(),
+            eventType,
+            user: userId,
+            document: documentId,
+            message: userQuestionHistoryRecord,
         });
         const answerObj = await ChatHistory.create({
-          eventDate: new Date(),
-          eventType,
-          user: userId,
-          document: documentId,
-          message: geminiAnswerHistoryRecord,
+            eventDate: new Date(),
+            eventType,
+            user: userId,
+            document: documentId,
+            message: geminiAnswerHistoryRecord,
         });
 
         return {
-          question: questionObj,
-          answer: answerObj,
-          relevantChunks,
-          documentId: documentId,
+            question: questionObj,
+            answer: answerObj,
+            relevantChunks,
+            documentId: documentId,
         };
-    
+
 
     } catch (error) {
 
@@ -205,9 +205,9 @@ aiService.chat = async (params = {}) => {
 };
 
 
-async function getRelevantChunks (params = {}) {
+async function getRelevantChunks(params = {}) {
     try {
-        const {emdbeddingQuery, documentId, userId} = params;
+        const { emdbeddingQuery, documentId, userId } = params;
 
 
         const chunks = await DocumentChunk.aggregate([
@@ -236,7 +236,7 @@ async function getRelevantChunks (params = {}) {
 
         return chunks;
 
-    } catch(error) {
+    } catch (error) {
 
         console.error('Error while getting the relevant chunks\n', error);
         throw error;
@@ -254,12 +254,12 @@ aiService.explainConcept = async (params = {}) => {
         const conceptEmbedding = await geminiService.generateEmbedding(concept);
 
         // * Vector Search for relevant chunks
-        const  chunks = await getRelevantChunks({ emdbeddingQuery: conceptEmbedding, documentId, userId });
+        const chunks = await getRelevantChunks({ emdbeddingQuery: conceptEmbedding, documentId, userId });
 
         // * Construct context
         const context = chunks.map((chunk, index) => `[Chunk ${index + 1} (Score: ${chunk.score.toFixed(2)})]\n${chunk.content}`).join('\n\n');
 
-        const answer =  await geminiService.explainConcept({ context, concept });
+        const answer = await geminiService.explainConcept({ context, concept });
 
 
         return { answer };
@@ -280,8 +280,8 @@ aiService.getChatHistory = async (params = {}) => {
         const eventType = statics.historyTypes.find(item => item.name === 'chat').value;
 
 
-        const query = { eventType, document: new mongoose.Types.ObjectId(documentId), user: new mongoose.Types.ObjectId(userId)};
-       
+        const query = { eventType, document: new mongoose.Types.ObjectId(documentId), user: new mongoose.Types.ObjectId(userId) };
+
         const totalCount = await ChatHistory.countDocuments(query);
 
         const histories = await ChatHistory
@@ -293,8 +293,8 @@ aiService.getChatHistory = async (params = {}) => {
 
         return { histories, totalCount };
 
-    } catch(error) {
-        
+    } catch (error) {
+
         throw error;
     }
 };
