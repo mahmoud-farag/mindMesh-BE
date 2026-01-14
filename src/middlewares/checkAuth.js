@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 import { User } from '../models/index.js'; // Adjust path to your User model
-import {STATUS_CODES} from '../common/index.js';
+import { STATUS_CODES } from '../common/index.js';
 
 const checkAuth = async (req, res, next) => {
   try {
@@ -9,9 +9,9 @@ const checkAuth = async (req, res, next) => {
 
     // 2. Check if header exists and starts with "Bearer"
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(STATUS_CODES.UNAUTHORIZED).json({ 
+      return res.status(STATUS_CODES.UNAUTHORIZED).json({
         success: false,
-        message: 'Access denied. No token provided or invalid format.' 
+        message: 'Access denied. No token provided or invalid format.'
       });
     }
 
@@ -19,12 +19,12 @@ const checkAuth = async (req, res, next) => {
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    const user = await User.findById(decoded.userId).select('-password').lean(); 
+    const user = await User.findById(decoded.userId).select('-password').lean();
 
     if (!user) {
-      return res.status(STATUS_CODES.UNAUTHORIZED).json({ 
-        success: false, 
-        message: 'User belonging to this token no longer exists.' 
+      return res.status(STATUS_CODES.UNAUTHORIZED).json({
+        success: false,
+        message: 'The user associated with this token no longer exists.'
       });
     }
 
@@ -36,7 +36,7 @@ const checkAuth = async (req, res, next) => {
     console.error('Auth Error:', error.message);
 
     next(error);
-  
+
   }
 };
 

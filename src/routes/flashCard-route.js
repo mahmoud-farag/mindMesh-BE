@@ -8,7 +8,7 @@ const router = express.Router();
 router.get('/', checkAuth, flashCardsController.getAllFlashcardSets);
 router.get('/:documentId', checkAuth, flashCardsController.getFlashcards);
 router.post('/:flashCardId/review', checkAuth, flashCardsController.reviewFlashcard);
-router.put('/:flashCardId/starr', checkAuth, flashCardsController.toggleStarFlashcard);
+router.patch('/:flashCardId/star', checkAuth, flashCardsController.toggleStarFlashcard);
 router.delete('/:flashCardId', checkAuth, flashCardsController.deleteFlashcardSet);
 
 export default router;

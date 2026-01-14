@@ -11,7 +11,9 @@ class GeminiService {
 
   #geminiClient
   #modelType = 'gemini-2.5-flash-lite';
+  // #modelType = 'gemini-2.0-flash';
 
+  
   constructor() {
 
     if (!process.env.GEMINI_API_KEY) {
@@ -19,7 +21,6 @@ class GeminiService {
     }
 
     this.#geminiClient = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-
   }
 
   set modelType(model) {
@@ -93,9 +94,9 @@ class GeminiService {
       console.error('generateFlashcards:: Gemini API error:\n', error);
 
       let errMsg = 'Failed to generate flashcards';
-      
+
       if (error.status === 429) {
-        errMsg= 'You exceeded your current quota, try again in another time';
+        errMsg = 'You exceeded your current quota, try again in another time';
       }
 
       if ([503].includes(error.status)) errMsg = error.message;
@@ -443,7 +444,7 @@ class GeminiService {
         const isRetryable = this.#isRetryableError(error);
 
         if (isRetryable && attempt < maxRetries) {
-          
+
           const delay = baseDelay * Math.pow(2, attempt - 1);
 
           console.log(`generateEmbeddingWithRetry:: Attempt ${attempt} failed, retrying in ${delay}ms...`);
