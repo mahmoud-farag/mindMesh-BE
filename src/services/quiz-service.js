@@ -23,7 +23,7 @@ QuizService.getQuizzes = async (params = {}) => {
 
         const quizzes = await Quiz.find(query)
             .sort({ createdAt: -1 })
-            .select('title score totalQuestions completedAt createdAt document user')
+            .select('title score totalQuestions completedAt createdAt document user isCompleted')
             .populate({ path: 'user', select: 'username' })
             .populate({ path: 'document', select: 'originalFileName title' })
             .skip(offset)
@@ -97,7 +97,7 @@ QuizService.submitQuiz = async (params = {}) => {
 
         // Process each answer
         for (const answer of answers) {
-            const { questionIndex, selectedAnswer } = answer;
+            const { questionIndex, selectedAnswer, questionId } = answer;
 
             if (questionIndex >= 0 && questionIndex < questions.length) {
 
@@ -118,7 +118,7 @@ QuizService.submitQuiz = async (params = {}) => {
                     score++;
                 }
 
-                userAnswers.push({ questionIndex, selectedAnswer, isCorrect, answeredAt: new Date() });
+                userAnswers.push({ questionIndex, questionId, selectedAnswer, isCorrect, answeredAt: new Date() });
             }
         }
 

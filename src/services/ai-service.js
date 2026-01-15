@@ -21,7 +21,7 @@ const getDocument = async (documentId, userId) => {
         status: 'ready',
     };
 
-    const document = await Document.findOne(query).select('extractedText geminiFileUri geminiUriExpirationDate').lean();
+    const document = await Document.findOne(query).select('title extractedText geminiFileUri geminiUriExpirationDate').lean();
 
     if (!document)
         throw new NotFoundError('Document not found or it is not ready yet (under processing)');

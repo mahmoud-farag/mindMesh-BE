@@ -34,6 +34,7 @@ const QuizSchema = new mongoose.Schema({
   }],
 
   userAnswers: [{
+    questionId: { type: mongoose.Schema.Types.ObjectId },
 
     questionIndex: { type: Number },
 
