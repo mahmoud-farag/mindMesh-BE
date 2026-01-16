@@ -106,10 +106,10 @@ aiService.generateSummary = async (params = {}) => {
 
         const document = await getDocument(documentId, userId);
 
-        const result = await geminiService.generateSummary({ document });
+        const summary = await geminiService.generateSummary({ document });
 
 
-        return result;
+        return { summary };
 
     } catch (error) {
 
