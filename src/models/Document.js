@@ -41,16 +41,16 @@ const DocumentSchema = new mongoose.Schema({
 
   flashcardCount: { type: Number, default: 0 },
   quizCount: { type: Number, default: 0 },
-  
+
   status: {
     type: String,
-    enum: ['processing', 'ready', 'failed', 'deleted'],
-    default: 'processing',
+    enum: ['uploading', 'uploaded', 'processing', 'ready', 'failed', 'deleted'],
+    default: 'uploading',
   },
 
 }, { timestamps: true });
 
- 
+
 DocumentSchema.index({ user: 1, uploadDate: -1 });
 
 
