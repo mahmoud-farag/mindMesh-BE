@@ -1,7 +1,7 @@
 {
-  "name": "ai-learner-be",
+  "name": "mindmesh-be",
   "version": "1.0.0",
-  "description": "a web application which serve as a ai study assesstent",
+  "description": "MindMesh Backend - AI-powered study assistant API",
   "main": "app.js",
   "type": "module",
   "scripts": {
