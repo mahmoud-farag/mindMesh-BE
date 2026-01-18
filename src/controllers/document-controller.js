@@ -7,6 +7,50 @@ const { BadRequestError } = customErrors;
 
 const documentController = {};
 
+
+documentController.initUpload = async (req, res, next) => {
+  try {
+    if (!req.body?.title || !req.body?.fileName || !req.body?.fileSize || !req.body?.mimeType) {
+      throw new BadRequestError('Missing required fields (title, fileName, fileSize, mimeType)');
+    }
+
+    const params = { userId: req.user._id, payload: req.body };
+    const { uploadUrl, document } = await documentService.initUpload(params);
+
+    return handleSuccessResponse({
+      res,
+      data: { uploadUrl, document },
+      message: 'Upload initialized. Use the URL to upload your file.',
+      statusCode: STATUS_CODES.CREATED,
+    });
+
+  } catch (error) {
+    next(error);
+  }
+}
+
+documentController.confirmUpload = async (req, res, next) => {
+  try {
+    const { documentId } = req.params;
+
+    if (!documentId) {
+      throw new BadRequestError('Document ID is required');
+    }
+
+    const params = { documentId, userId: req.user._id };
+    await documentService.confirmUpload(params);
+
+    return handleSuccessResponse({
+      res,
+      data: { documentId },
+      message: 'Document uploaded successfully.',
+    });
+
+  } catch (error) {
+    next(error);
+  }
+}
+
 documentController.uploadDocument = async (req, res, next) => {
   try {
 

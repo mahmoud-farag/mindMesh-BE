@@ -16,6 +16,69 @@ const { NotFoundError } = customErrors;
 const documentService = {};
 
 
+documentService.initUpload = async (params = {}) => {
+  try {
+    console.log('documentService.initUpload:: started');
+
+    const { userId, payload } = params;
+
+    const { title, fileName: originalFileName, fileSize, mimeType } = payload;
+    const folder = S3Folders.PDF_Documents;
+
+    const document = new Document({
+      title,
+      user: userId,
+      originalFileName,
+      fileSize,
+      status: 'uploading',
+      S3Data: {
+        folder,
+        mimeType,
+        fileName: '',
+      },
+    });
+
+    const documentId = document._id.toString();
+
+    const s3FileName = `${originalFileName.replace('.pdf', '')}_${documentId}_${Date.now()}.pdf`;
+
+    document.S3Data.fileName = s3FileName;
+
+    await document.save();
+
+    const uploadUrl = await awsService.getPutSignedUrl(folder, s3FileName, mimeType, { expiresIn: 600 }); // 10 minutes
+
+    return { uploadUrl, document };
+
+  } catch (error) {
+    throw error;
+  }
+}
+
+documentService.confirmUpload = async (params = {}) => {
+  try {
+    console.log('documentService.confirmUpload:: started');
+
+    const { documentId, userId } = params;
+
+    // Update status directly
+    const result = await Document.updateOne(
+      { _id: documentId, user: userId },
+      { $set: { status: 'uploaded' } }
+    );
+
+    if (result.matchedCount === 0) {
+      throw new BadRequestError('Document not found');
+    }
+
+
+    return
+
+  } catch (error) {
+    throw error;
+  }
+}
+
 documentService.uploadPdfDocument = async (params = {}) => {
   try {
     console.log('documentService.uploadPdfDocument:: started');
@@ -31,7 +94,7 @@ documentService.uploadPdfDocument = async (params = {}) => {
 
     // * create a new record in the db
     // const fileSize = (file.size / (1024 * 1024)).toFixed(4);
-    const fileSize = file.size ;
+    const fileSize = file.size;
 
 
     const document = await Document.create({
@@ -317,17 +380,17 @@ documentService.getDocument = async (params = {}) => {
 
     const document = await Document.findOne(query)
       .select('-chunks -extractedText')
-      .populate({path:'user', select:'username'}).lean();
+      .populate({ path: 'user', select: 'username' }).lean();
 
     if (document?.S3Data?.fileName && document?.S3Data?.folder) {
 
-      const {folder, fileName } = document.S3Data;
+      const { folder, fileName } = document.S3Data;
       const expiresIn = 86400; // 1 Day
 
-      const signedUrl = await awsService.getSignedUrl(folder, fileName, {expiresIn});
-      document.S3FileUrl= signedUrl;
+      const signedUrl = await awsService.getSignedUrl(folder, fileName, { expiresIn });
+      document.S3FileUrl = signedUrl;
     }
-    
+
     if (!document)
       throw new NotFoundError('Document not Found');
 
@@ -372,7 +435,7 @@ documentService.getAllDocuments = async (params = {}) => {
     const query = {
       user: userId,
       status: { $ne: 'deleted' },
-    }; 
+    };
 
     const documents = await Document.find(query).select('-extractedText').lean();
 
