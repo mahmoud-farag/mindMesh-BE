@@ -1,7 +1,7 @@
 import { GoogleGenAI } from '@google/genai';
 import { customErrors } from '../utils/index.js';
 import awsService from './aws-service.js';
-import Document from '../models/Document.js';
+import { Document } from '@mindmesh/shared-models';
 
 
 const { InternalServerError } = customErrors;

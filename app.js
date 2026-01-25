@@ -42,18 +42,16 @@ app.use((req, res, next) => {
 app.use(errorHandler);
 
 
-app.listen(PORT, async () => {
+// Connect to DB before starting server
+try {
+  await connectToDB();
+} catch (error) {
+  console.log('DB connection Error:', error);
+  process.exit(1);
+}
+
+app.listen(PORT, () => {
   console.log(`Server is up and running on Port: ${PORT}`);
-  // once the server is up, then connect to the db
-  try {
-    await connectToDB();
-
-  } catch (error) {
-    console.log('DB connection Error:', error);
-
-    // turn off the web server gracefully
-    process.exit(1);
-  }
 });
 
 

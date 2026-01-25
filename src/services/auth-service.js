@@ -1,5 +1,5 @@
 import { param } from 'express-validator';
-import { User } from '../models/index.js';
+import { User } from '@mindmesh/shared-models';
 import { customErrors, generateToken, matchPassword } from '../utils/index.js';
 
 const { BadRequestError, InternalServerError, NotFoundError } = customErrors;

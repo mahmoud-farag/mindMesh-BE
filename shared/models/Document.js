@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+const mongoose = require('mongoose');
 
 const DocumentSchema = new mongoose.Schema({
 
@@ -56,4 +56,4 @@ DocumentSchema.index({ user: 1, uploadDate: -1 });
 
 const Document = mongoose.model('Document', DocumentSchema);
 
-export default Document;
+module.exports = Document;

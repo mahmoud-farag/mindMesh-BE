@@ -53,6 +53,7 @@ export class PdfProcessingStack extends cdk.Stack {
         this.pdfProcessorLambda = new lambda.Function(this, 'PdfProcessorLambda', {
             runtime: lambda.Runtime.NODEJS_20_X,
             handler: 'index.handler',
+            // Simple! npm package handles shared models
             code: lambda.Code.fromAsset('../lambdas/pdf-processor'),
             timeout: cdk.Duration.minutes(5),
             memorySize: 256,

@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { User } from '../models/index.js'; // Adjust path to your User model
+import { User } from '@mindmesh/shared-models';
 import { STATUS_CODES } from '../common/index.js';
 
 const checkAuth = async (req, res, next) => {
