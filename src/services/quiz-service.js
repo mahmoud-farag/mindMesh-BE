@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { Quiz } from '../models/index.js';
+import { Quiz } from '@mindmesh/shared-models';
 import { customErrors } from '../utils/index.js';
 
 const { NotFoundError, BadRequestError } = customErrors;

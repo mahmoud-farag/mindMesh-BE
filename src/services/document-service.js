@@ -1,6 +1,6 @@
 import awsService from './aws-service.js';
 
-import { Document, DocumentChunk } from '../models/index.js';
+import { Document, DocumentChunk } from '@mindmesh/shared-models';
 import { pdfParserUtils, textChunkerUtils } from '../utils/index.js'
 import geminiService from './gemini-Service.js';
 

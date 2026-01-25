@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { Document, Quiz, FlashCard, } from '../models/index.js';
+import { Document, Quiz, FlashCard } from '@mindmesh/shared-models';
 
 
 

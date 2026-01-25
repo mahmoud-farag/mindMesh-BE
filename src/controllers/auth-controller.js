@@ -66,8 +66,6 @@ function validateReqBody(reqBody) {
 }
 
 
-
-
 authController.getUserProfile = async (req, res, next) => {
   try {
 
@@ -84,7 +82,6 @@ authController.getUserProfile = async (req, res, next) => {
 
   }
 };
-
 
 
 authController.updateUserProfile = async (req, res, next) => {

@@ -1,0 +1,17 @@
+{
+  "name": "@mindmesh/shared-models",
+  "version": "1.0.0",
+  "description": "Shared database models for MindMesh services",
+  "main": "index.js",
+  "peerDependencies": {
+    "mongoose": "^9.0.0",
+    "bcryptjs": "^3.0.0"
+  },
+  "keywords": [
+    "mongoose",
+    "models",
+    "shared"
+  ],
+  "author": "mahmoud-farag",
+  "license": "ISC"
+}

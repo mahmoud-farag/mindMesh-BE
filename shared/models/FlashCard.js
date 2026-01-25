@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+const mongoose = require('mongoose');
 
 const FlashCardSchema = new mongoose.Schema({
 
@@ -44,4 +44,4 @@ FlashCardSchema.index({ user: 1, document: 1 });
 
 const FlashCard = mongoose.model('FlashCard', FlashCardSchema);
 
-export default FlashCard;
+module.exports = FlashCard;

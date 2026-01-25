@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+const mongoose = require('mongoose');
 
 const ChatHistorySchema = new mongoose.Schema({
 
@@ -45,4 +45,4 @@ ChatHistorySchema.index({ user: 1, document: 1 });
 const ChatHistory = mongoose.model('ChatHistory', ChatHistorySchema);
 
 
-export default ChatHistory;
+module.exports = ChatHistory;
