@@ -1,12 +1,12 @@
 import { Document, FlashCard, Quiz, DocumentChunk, ChatHistory } from '@mindmesh/shared-models';
-import geminiService from './gemini-Service.js';
 import { customErrors } from '../utils/index.js';
+import geminiService from '@mindmesh/shared-gemini-service';
 import mongoose from 'mongoose';
 
 // it is a hack way as the json import is not supported in the current version of nodejs
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url)
-const statics = require('../data/statics.json');
+const statics = require('../../shared/data/statics.json');
 
 
 const { NotFoundError, InternalServerError } = customErrors;

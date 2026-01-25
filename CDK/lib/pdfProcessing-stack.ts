@@ -59,9 +59,7 @@ export class PdfProcessingStack extends cdk.Stack {
             memorySize: 256,
             description: 'Processes PDF files uploaded to S3',
             environment: {
-                S3_BUCKET_NAME: this.bucket.bucketName,
-                AWS_REGION_NAME: this.region,
-                // SSM parameter paths (not values) - Lambda will fetch at runtime
+                BUCKET_NAME: this.bucket.bucketName,
                 MONGO_URI_PARAM: '/mindMesh/mongoURI',
                 GEMINI_API_KEY_PARAM: '/mindMesh/geminiAPIKey',
             },

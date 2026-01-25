@@ -47,7 +47,7 @@ cache.getGeminiAPiKey = async () => {
 
 }
 
-module.exports = { cache };
+module.exports =  cache ;
 
 
 
