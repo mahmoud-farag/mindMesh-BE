@@ -1,9 +1,11 @@
 const { S3Client, GetObjectCommand } = require('@aws-sdk/client-s3');
-const { cache } = require('./utils/cache');
+const { cache, utils, S3Folders, pdfParserUtils, textChunkerUtils } = require('./utilities/index');
 const mongoose = require('mongoose');
 
-// Import models from npm package
-const { Document, DocumentChunk, User } = require('@mindmesh/shared-models');
+const geminiService = require('@mindmesh/shared-gemini-service');
+const awsService = require('@mindmesh/shared-aws-service');
+
+const { Document, DocumentChunk } = require('@mindmesh/shared-models');
 
 const s3Client = new S3Client({});
 
@@ -14,47 +16,45 @@ const s3Client = new S3Client({});
  * Triggered by S3 ObjectCreated event
  */
 exports.handler = async (event) => {
-
     console.log('---PDF Processor Lambda triggered');
     console.log('----Event:', JSON.stringify(event));
 
     try {
 
-        // Extract S3 event details
-        const record = event?.Records[0];
+        const record = event?.Records?.[0];
 
-        console.log('----record:', record);
 
-        if (record?.eventSource === 'aws:s3' && record?.s3) {
-
-            const [geminiApIKey, mongoUri] = await Promise.all([cache.getGeminiAPiKey(), cache.getMongoURI()]);
-
-            console.log('---geminiApIKey:', geminiApIKey);
-            console.log('--mongoUri:', mongoUri);
-
-            // Connect to MongoDB
-            if (mongoose.connection.readyState === 0) {
-                await mongoose.connect(mongoUri);
-                console.log('----MongoDB connected--');
-            }
-
-            const bucketName = record.s3.bucket.name;
-            console.log('--record.s3.object.key:', record.s3.object.key);
-            const objectKey = decodeURIComponent(record.s3.object.key.replace(/\+/g, ' '));
-
-            console.log(`Processing file: ${objectKey} from bucket: ${bucketName}`);
-
-            // Now you can use the models here
-            // Example: Find or update document
-            // const document = await Document.findOne({ 'S3Data.fileName': objectKey });
-            // if (document) {
-            //     document.status = 'processing';
-            //     await document.save();
-            // }
-
-        } else {
-            console.log('----No S3 record found')
+        if (record?.eventSource !== 'aws:s3' || !record?.s3) {
+            console.log('----No S3 record found');
+            return;
         }
+
+        const bucketName = record.s3?.bucket?.name;
+        const s3Key = record.s3?.object?.key;
+
+        const [geminiApIKey, mongoUri] = await Promise.all([cache.getGeminiAPiKey(), cache.getMongoURI()]);
+       
+        if (!geminiApIKey) 
+            throw new Error('Failed to fetch Gemini API key from SSM');
+        
+
+        await utils.setDBConnection(mongoUri);
+        geminiService.setApiKey(geminiApIKey);
+
+        const documentId = utils.extractDocumentIdFromFilename(s3Key);
+
+        if (!documentId)
+            throw new Error('Document Id not exist on the the s3 file name');
+
+        const document = await Document.findById(documentId);
+
+        if (!document)
+            throw new Error('Document not exist');
+
+        await Document.updateOne({ _id: documentId }, { $set: { status: 'processing' } });
+
+        const userId = document.user;
+        
 
         console.log('----PDF Processor Lambda finished');
 

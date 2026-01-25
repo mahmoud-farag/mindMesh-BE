@@ -1,15 +1,15 @@
-import awsService from './aws-service.js';
+import awsService from '@mindmesh/shared-aws-service';
 
 import { Document, DocumentChunk } from '@mindmesh/shared-models';
 import { pdfParserUtils, textChunkerUtils } from '../utils/index.js'
-import geminiService from './gemini-Service.js';
+import geminiService from '@mindmesh/shared-gemini-service';
 
 import { customErrors } from '../utils/index.js';
 
 // it is a hack way as the json import is not supported in the current version of nodejs
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url)
-const S3Folders = require('../data/S3-folders.json');
+const S3Folders = require('../../shared/data/S3-folders.json');
 
 const { NotFoundError } = customErrors;
 
@@ -113,7 +113,7 @@ documentService.uploadPdfDocument = async (params = {}) => {
 
     // * upload the pdf file to the S3, make it works in the backgroud to send the user response quickly
     //! DOTO in version2, need to be refactored and move to SLS lambda or uing the BullMQ(background jobs)
-    uploadPdfFileToS3({ mimeType, fileBuffer: file.buffer, folder, fileName });
+    uploadPdfFileToS3({ mimeType, fileBuffer: file.buffer, folder, fileName, documentId:document._id });
 
 
     const buffer = file.buffer;
@@ -151,7 +151,7 @@ async function uploadPdfFileToS3(params = {}) {
 
   } catch (error) {
 
-    await Document.findOneAndUpdate({ _id: documentId }, { status: 'failed', S3Data: null });
+    await Document.findOneAndUpdate({ _id: params.documentId }, { status: 'failed', S3Data: null });
 
     throw error;
   }
