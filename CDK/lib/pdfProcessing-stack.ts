@@ -62,6 +62,8 @@ export class PdfProcessingStack extends cdk.Stack {
                 BUCKET_NAME: this.bucket.bucketName,
                 MONGO_URI_PARAM: '/mindMesh/mongoURI',
                 GEMINI_API_KEY_PARAM: '/mindMesh/geminiAPIKey',
+                CHUNK_SIZE: '60',
+                OVERLAP: '10',
             },
         });
 

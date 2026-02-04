@@ -31,20 +31,22 @@ class AwsService {
    * @private
    */
   #ensureInitialized() {
-    if (this.#s3Client) {
+    
+    if (this.#s3Client) 
       return;
-    }
-
-
-    if (!this.#region || !this.#bucketName) {
-      throw new Error('AWS_REGION and BUCKET_NAME environment variables are required');
-    }
-
-
     this.#region = process.env.AWS_REGION;
     this.#bucketName = process.env.BUCKET_NAME;
     this.#accessKeyId = process.env.AWS_ACCESS_KEY_ID;
     this.#secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
+
+    if (!this.#region || !this.#bucketName) 
+      throw new Error('AWS_REGION and BUCKET_NAME environment variables are required');
+    
+
+    if (!this.#accessKeyId || !this.#secretAccessKey) 
+      throw new Error('AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY environment variables are required');
+    
+
 
     const clientConfig = {
       region: this.#region,
