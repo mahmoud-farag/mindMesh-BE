@@ -109,7 +109,7 @@ aiService.generateSummary = async (params = {}) => {
         const summary = await geminiService.generateSummary({ document });
 
 
-        return { summary };
+        return { summary: result };
 
     } catch (error) {
 
