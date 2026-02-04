@@ -1,12 +1,12 @@
-import { Document, FlashCard, Quiz, DocumentChunk, ChatHistory } from '../models/index.js';
-import geminiService from './gemini-Service.js';
+import { Document, FlashCard, Quiz, DocumentChunk, ChatHistory } from '@mindmesh/shared-models';
 import { customErrors } from '../utils/index.js';
+import geminiService from '@mindmesh/shared-gemini-service';
 import mongoose from 'mongoose';
 
 // it is a hack way as the json import is not supported in the current version of nodejs
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url)
-const statics = require('../data/statics.json');
+const statics = require('../../shared/data/statics.json');
 
 
 const { NotFoundError, InternalServerError } = customErrors;
@@ -21,7 +21,7 @@ const getDocument = async (documentId, userId) => {
         status: 'ready',
     };
 
-    const document = await Document.findOne(query).select('extractedText geminiFileUri geminiUriExpirationDate').lean();
+    const document = await Document.findOne(query).select('title extractedText geminiFileUri geminiUriExpirationDate').lean();
 
     if (!document)
         throw new NotFoundError('Document not found or it is not ready yet (under processing)');
@@ -92,7 +92,7 @@ aiService.generateQuiz = async (params = {}) => {
         await Document.updateOne({ _id: documentId }, { $inc: { quizCount: 1 } });
 
 
-        return { quizDocument };
+        return { quiz: quizDocument };
 
     } catch (error) {
 
@@ -106,7 +106,7 @@ aiService.generateSummary = async (params = {}) => {
 
         const document = await getDocument(documentId, userId);
 
-        const result = await geminiService.generateSummary({ document });
+        const summary = await geminiService.generateSummary({ document });
 
 
         return { summary: result };

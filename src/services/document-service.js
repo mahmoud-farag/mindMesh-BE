@@ -1,20 +1,83 @@
-import awsService from './aws-service.js';
+import awsService from '@mindmesh/shared-aws-service';
 
-import { Document, DocumentChunk } from '../models/index.js';
+import { Document, DocumentChunk } from '@mindmesh/shared-models';
 import { pdfParserUtils, textChunkerUtils } from '../utils/index.js'
-import geminiService from './gemini-Service.js';
+import geminiService from '@mindmesh/shared-gemini-service';
 
 import { customErrors } from '../utils/index.js';
 
 // it is a hack way as the json import is not supported in the current version of nodejs
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url)
-const S3Folders = require('../data/S3-folders.json');
+const S3Folders = require('../../shared/data/S3-folders.json');
 
 const { NotFoundError } = customErrors;
 
 const documentService = {};
 
+
+documentService.initUpload = async (params = {}) => {
+  try {
+    console.log('documentService.initUpload:: started');
+
+    const { userId, payload } = params;
+
+    const { title, fileName: originalFileName, fileSize, mimeType } = payload;
+    const folder = S3Folders.PDF_Documents;
+
+    const document = new Document({
+      title,
+      user: userId,
+      originalFileName,
+      fileSize,
+      status: 'uploading',
+      S3Data: {
+        folder,
+        mimeType,
+        fileName: '',
+      },
+    });
+
+    const documentId = document._id.toString();
+
+    const s3FileName = `${originalFileName.replace('.pdf', '')}_${documentId}_${Date.now()}.pdf`;
+
+    document.S3Data.fileName = s3FileName;
+
+    await document.save();
+
+    const uploadUrl = await awsService.getPutSignedUrl(folder, s3FileName, mimeType, { expiresIn: 600 }); // 10 minutes
+
+    return { uploadUrl, document };
+
+  } catch (error) {
+    throw error;
+  }
+}
+
+documentService.confirmUpload = async (params = {}) => {
+  try {
+    console.log('documentService.confirmUpload:: started');
+
+    const { documentId, userId } = params;
+
+    // Update status directly
+    const result = await Document.updateOne(
+      { _id: documentId, user: userId },
+      { $set: { status: 'uploaded' } }
+    );
+
+    if (result.matchedCount === 0) {
+      throw new BadRequestError('Document not found');
+    }
+
+
+    return
+
+  } catch (error) {
+    throw error;
+  }
+}
 
 documentService.uploadPdfDocument = async (params = {}) => {
   try {
@@ -31,7 +94,7 @@ documentService.uploadPdfDocument = async (params = {}) => {
 
     // * create a new record in the db
     // const fileSize = (file.size / (1024 * 1024)).toFixed(4);
-    const fileSize = file.size ;
+    const fileSize = file.size;
 
 
     const document = await Document.create({
@@ -50,7 +113,7 @@ documentService.uploadPdfDocument = async (params = {}) => {
 
     // * upload the pdf file to the S3, make it works in the backgroud to send the user response quickly
     //! DOTO in version2, need to be refactored and move to SLS lambda or uing the BullMQ(background jobs)
-    uploadPdfFileToS3({ mimeType, fileBuffer: file.buffer, folder, fileName });
+    uploadPdfFileToS3({ mimeType, fileBuffer: file.buffer, folder, fileName, documentId:document._id });
 
 
     const buffer = file.buffer;
@@ -88,7 +151,7 @@ async function uploadPdfFileToS3(params = {}) {
 
   } catch (error) {
 
-    await Document.findOneAndUpdate({ _id: documentId }, { status: 'failed', S3Data: null });
+    await Document.findOneAndUpdate({ _id: params.documentId }, { status: 'failed', S3Data: null });
 
     throw error;
   }
@@ -317,17 +380,17 @@ documentService.getDocument = async (params = {}) => {
 
     const document = await Document.findOne(query)
       .select('-chunks -extractedText')
-      .populate({path:'user', select:'username'}).lean();
+      .populate({ path: 'user', select: 'username' }).lean();
 
     if (document?.S3Data?.fileName && document?.S3Data?.folder) {
 
-      const {folder, fileName } = document.S3Data;
+      const { folder, fileName } = document.S3Data;
       const expiresIn = 86400; // 1 Day
 
-      const signedUrl = await awsService.getSignedUrl(folder, fileName, {expiresIn});
-      document.S3FileUrl= signedUrl;
+      const signedUrl = await awsService.getSignedUrl(folder, fileName, { expiresIn });
+      document.S3FileUrl = signedUrl;
     }
-    
+
     if (!document)
       throw new NotFoundError('Document not Found');
 
@@ -372,7 +435,7 @@ documentService.getAllDocuments = async (params = {}) => {
     const query = {
       user: userId,
       status: { $ne: 'deleted' },
-    }; 
+    };
 
     const documents = await Document.find(query).select('-extractedText').lean();
 

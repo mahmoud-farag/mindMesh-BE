@@ -1,7 +1,7 @@
 {
-  "name": "ai-learner-be",
+  "name": "mindmesh-be",
   "version": "1.0.0",
-  "description": "a web application which serve as a ai study assesstent",
+  "description": "MindMesh Backend - AI-powered study assistant API",
   "main": "app.js",
   "type": "module",
   "scripts": {
@@ -15,6 +15,9 @@
     "@aws-sdk/client-s3": "^3.948.0",
     "@aws-sdk/s3-request-presigner": "^3.948.0",
     "@google/genai": "^1.31.0",
+    "@mindmesh/shared-aws-service": "file:shared/services/aws-service",
+    "@mindmesh/shared-gemini-service": "file:shared/services/gemini-service",
+    "@mindmesh/shared-models": "file:shared/models",
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",

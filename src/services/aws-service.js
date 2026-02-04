@@ -223,6 +223,40 @@ class AwsService {
     }
   }
 
+  /**
+   * Generates a signed URL for uploading a file to the S3 bucket (PUT).
+   * @param {string} folder - The folder path in the bucket.
+   * @param {string} fileName - The name of the file.
+   * @param {string} mimeType - The MIME type of the file.
+   * @param {Object} [options={}] - Options for the signed URL.
+   * @param {number} [options.expiresIn=3600] - Expiration time in seconds.
+   * @returns {Promise<string>} The signed URL.
+   */
+  async getPutSignedUrl(folder, fileName, mimeType, options = {}) {
+    try {
+      console.log('aws::getPutSignedUrl started');
+      const { expiresIn = 3600 } = options;
+
+      if (!folder || !fileName || !mimeType)
+        throw new BadRequestError('Missing AWS getPutSignedUrl params');
+
+      const key = this.#getFileKey(folder, fileName);
+
+      const command = new PutObjectCommand({
+        Bucket: this.#bucketName,
+        Key: key,
+        ContentType: mimeType,
+      });
+
+      return await getSignedUrl(this.#s3Client, command, { expiresIn });
+
+    } catch (error) {
+      console.error(`aws::getPutSignedUrl:\n`, error);
+      if (error instanceof CustomError) throw error;
+      else throw new InternalServerError('Failed to generate PUT signed URL');
+    }
+  }
+
 }
 
 

@@ -1,7 +1,7 @@
 import { GoogleGenAI } from '@google/genai';
 import { customErrors } from '../utils/index.js';
-import awsService from './aws-service.js';
-import Document from '../models/Document.js';
+import awsService from '@mindmesh/shared-aws-service';
+import { Document } from '@mindmesh/shared-models';
 
 
 const { InternalServerError } = customErrors;
@@ -11,7 +11,9 @@ class GeminiService {
 
   #geminiClient
   #modelType = 'gemini-2.5-flash-lite';
+  // #modelType = 'gemini-2.0-flash';
 
+  
   constructor() {
 
     if (!process.env.GEMINI_API_KEY) {
@@ -19,7 +21,6 @@ class GeminiService {
     }
 
     this.#geminiClient = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-
   }
 
   set modelType(model) {

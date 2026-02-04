@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+const mongoose = require('mongoose');
 
 const documentChunkSchema = new mongoose.Schema({
 
@@ -25,4 +25,4 @@ documentChunkSchema.index({ user: 1, document: 1 });
 
 const DocumentChunk = mongoose.model('DocumentChunk', documentChunkSchema);
 
-export default DocumentChunk;
+module.exports = DocumentChunk;

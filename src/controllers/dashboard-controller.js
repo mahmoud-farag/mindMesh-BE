@@ -18,10 +18,10 @@ dashboardController.getDashboardData = async (req, res, next) => {
 
     const result = await dashboardService.getDashboardData(params);
 
-    return handleSuccessResponse({ res, data: result, message: 'All statistics are ready now',  });
+    return handleSuccessResponse({ res, data: result, message: 'Dashboard statistics loaded successfully.' });
 
-  } catch(error) {
-    
+  } catch (error) {
+
     next(error);
 
   }

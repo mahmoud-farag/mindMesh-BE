@@ -12,6 +12,8 @@ const router = express.Router();
 
 
 // protected routes
+router.post('/init-upload', checkAuth, documentController.initUpload);
+router.patch('/:documentId/confirm-upload', checkAuth, documentController.confirmUpload);
 router.post('/upload-pdf', checkAuth, uploadFiles({ allowedMimeTypes: ['application/pdf'] }), documentController.uploadDocument);
 router.get('/', checkAuth, documentController.getDocuments);
 router.get('/:documentId', checkAuth, documentController.getDocument);

@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { FlashCard } from '../models/index.js';
+import { FlashCard } from '@mindmesh/shared-models';
 import { customErrors } from '../utils/index.js';
 
 const  { BadRequestError, NotFoundError } = customErrors;

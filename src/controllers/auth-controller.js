@@ -10,14 +10,14 @@ authController.login = async (req, res, next) => {
   try {
 
     if (!req?.body?.username && !req?.body?.email)
-      throw new BadRequestError('Missing credentials');
+      throw new BadRequestError('Please provide both username/email and password.');
 
     const { email, username, password } = req.body;
 
-    const { user, accessToken } = await authService.login({email, username, password});
+    const { user, accessToken } = await authService.login({ email, username, password });
 
 
-    return handleSuccessResponse({ res, data: { user, accessToken }, message: 'You logged in successfully.' });
+    return handleSuccessResponse({ res, data: { user, accessToken }, message: 'Welcome back! You have logged in successfully.' });
 
 
   } catch (error) {
@@ -35,7 +35,7 @@ authController.register = async (req, res, next) => {
 
     await authService.register(req.body);
 
-    return handleSuccessResponse({ res, message: 'Registered successfully, now you can login', statusCode: STATUS_CODES.CREATED });
+    return handleSuccessResponse({ res, message: 'Registration successful! You can now log in.', statusCode: STATUS_CODES.CREATED });
 
   } catch (error) {
 
@@ -48,7 +48,7 @@ function validateReqBody(reqBody) {
   const missingFields = [];
 
   if (!reqBody || Object.keys(reqBody ?? {}).length === 0)
-    throw new BadRequestError('You have to provide the registeration payload');
+    throw new BadRequestError('Registration details are missing.');
 
   if (!reqBody?.username)
     missingFields.push('username');
@@ -60,12 +60,10 @@ function validateReqBody(reqBody) {
 
 
   if (missingFields.length) {
-    const errorMsg = 'Please fill the missing fields to proceed, (' + missingFields.join(' ,') + ')';
+    const errorMsg = 'Please fill in the following required fields: ' + missingFields.join(', ');
     throw new BadRequestError(errorMsg);
   }
 }
-
-
 
 
 authController.getUserProfile = async (req, res, next) => {
@@ -86,7 +84,6 @@ authController.getUserProfile = async (req, res, next) => {
 };
 
 
-
 authController.updateUserProfile = async (req, res, next) => {
   try {
 
@@ -103,17 +100,17 @@ authController.changePassword = async (req, res, next) => {
     const { currentPassword, newPassword } = req?.body ?? {};
 
     if (!currentPassword)
-      throw new BadRequestError('Current password is must be provied');
+      throw new BadRequestError('Please provide your current password.');
 
 
     if (!newPassword)
-      throw new BadRequestError('New password is missing');
+      throw new BadRequestError('Please provide a new password.');
 
     const userId = req.user._id;
 
     await authService.changePassword(userId, currentPassword, newPassword);
 
-    return handleSuccessResponse({ res, message: 'Password updated successfully' });
+    return handleSuccessResponse({ res, message: 'Your password has been updated successfully.' });
 
   } catch (error) {
 

@@ -1,0 +1,17 @@
+{
+  "name": "@mindmesh/shared-gemini-service",
+  "version": "1.0.0",
+  "description": "Shared Gemini AI service for MindMesh app and Lambda functions",
+  "main": "index.js",
+  "dependencies": {
+    "@google/generative-ai": "^0.21.0"
+  },
+  "keywords": [
+    "gemini",
+    "ai",
+    "embeddings",
+    "shared"
+  ],
+  "author": "mahmoud-farag",
+  "license": "ISC"
+}

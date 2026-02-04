@@ -6,15 +6,15 @@ const quizController = {};
 quizController.getQuizzes = async (req, res, next) => {
     try {
 
-        if (!req.params?.documentId) 
-            throw new BadRequestError('Document Id is required');
+        if (!req.params?.documentId)
+            throw new BadRequestError('Document ID is required.');
 
 
-        if (!req?.paginationParams) 
-            throw new BadRequestError('Pagination Params not');
+        if (!req?.paginationParams)
+            throw new BadRequestError('Pagination parameters are missing.');
 
         const params = {
-            userId: req.user._id, 
+            userId: req.user._id,
             documentId: req.params.documentId,
             paginationParams: req.paginationParams,
         };

@@ -15,17 +15,17 @@ aiController.generateFlashcards = async (req, res, next) => {
     try {
 
         if (!req.body?.documentId)
-            throw new BadRequestError('Document Id is required');
+            throw new BadRequestError('Document ID is required.');
 
         const numberOfFlashcards = req.body?.numberOfFlashcards ?? DEFULT_GENERATED_FLASH_CARDS;
 
         if (numberOfFlashcards > MAX_ALLOWED_FLASH_CARDS)
-            throw new BadRequestError(`You exceed the 100 flashcard limitation`);
+            throw new BadRequestError(`You cannot generate more than ${MAX_ALLOWED_FLASH_CARDS} flashcards at once.`);
 
 
         const result = await aiService.generateFlashcards({ numberOfFlashcards, documentId: req.body.documentId, userId: req.user._id });
 
-        return handleSuccessResponse({ res, data: { ...result }, message: result?.message ?? 'Flashcards generated successfully' });
+        return handleSuccessResponse({ res, data: { ...result }, message: result?.message ?? 'Flashcards generated successfully.' });
 
     } catch (error) {
 
@@ -39,7 +39,7 @@ aiController.generateQuiz = async (req, res, next) => {
 
 
         if (!req.body?.documentId)
-            throw new BadRequestError('Document Id is required');
+            throw new BadRequestError('Document ID is required.');
 
         const DEFAULT_NUM_QUESTIONS = 5;
 
@@ -51,7 +51,7 @@ aiController.generateQuiz = async (req, res, next) => {
 
         const result = await aiService.generateQuiz(params);
 
-        return handleSuccessResponse({ res, data: result, message: 'Quiz generated successfully' });
+        return handleSuccessResponse({ res, data: result, message: 'Quiz generated successfully.' });
 
     } catch (error) {
 
@@ -63,11 +63,11 @@ aiController.generateSummary = async (req, res, next) => {
     try {
 
         if (!req.body?.documentId)
-            throw new BadRequestError('Document Id is required');
+            throw new BadRequestError('Document ID is required.');
 
-        const result = await aiService.generateSummary({ documentId: req.body.documentId , userId: req.user._id });
+        const result = await aiService.generateSummary({ documentId: req.body.documentId, userId: req.user._id });
 
-        return handleSuccessResponse({ res, data: result, message: 'Summary generated successfully' });
+        return handleSuccessResponse({ res, data: result, message: 'Summary generated successfully.' });
 
     } catch (error) {
 
@@ -79,10 +79,10 @@ aiController.chat = async (req, res, next) => {
     try {
 
         if (!req.body?.documentId)
-            throw new BadRequestError('Document Id is required');
+            throw new BadRequestError('Document ID is required.');
 
         if (!req.body?.question)
-            throw new BadRequestError('Question is missing');
+            throw new BadRequestError('Please provide a question.');
 
         const params = {
             documentId: req.body.documentId,
@@ -92,7 +92,7 @@ aiController.chat = async (req, res, next) => {
 
         const result = await aiService.chat(params);
 
-        return handleSuccessResponse({ res, data: result, message: 'Response generated successfully' });
+        return handleSuccessResponse({ res, data: result, message: 'Response generated successfully.' });
 
     } catch (error) {
 
@@ -104,11 +104,11 @@ aiController.explainConcept = async (req, res, next) => {
     try {
 
         if (!req.body?.documentId)
-            throw new BadRequestError('Document Id is required');
+            throw new BadRequestError('Document ID is required.');
 
         if (!req.body?.concept)
-            throw new BadRequestError('Concept is missing');
-        
+            throw new BadRequestError('Please provide a concept to explain.');
+
 
         const params = {
             documentId: req.body.documentId,
@@ -117,8 +117,8 @@ aiController.explainConcept = async (req, res, next) => {
         }
 
         const result = await aiService.explainConcept(params);
-        
-        return handleSuccessResponse({ res, data: result, message: 'Explanation generated successfully' });
+
+        return handleSuccessResponse({ res, data: result, message: 'Explanation generated successfully.' });
 
     } catch (error) {
 
@@ -129,24 +129,24 @@ aiController.explainConcept = async (req, res, next) => {
 aiController.getChatHistory = async (req, res, next) => {
     try {
 
-        
-        if (!req.params?.documentId) 
-            throw new BadRequestError('Document Id is required');
 
-   
+        if (!req.params?.documentId)
+            throw new BadRequestError('Document ID is required.');
+
+
 
         if (!req?.paginationParams)
-            throw new BadRequestError('Pagination params not found');
+            throw new BadRequestError('Pagination parameters are missing.');
 
         const params = {
             documentId: req.params.documentId,
             userId: req.user._id,
             paginationParams: req.paginationParams,
         };
-        
+
         const result = await aiService.getChatHistory(params);
 
-        return handleSuccessResponse({ res, data: result, message: 'history data successfully retrieved' });
+        return handleSuccessResponse({ res, data: result, message: 'Chat history retrieved successfully.' });
 
     } catch (error) {
         next(error);
