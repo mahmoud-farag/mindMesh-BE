@@ -3,6 +3,8 @@
   "version": "1.0.0",
   "description": "Shared AWS service utilities for MindMesh app and Lambda functions",
   "main": "index.js",
+    "type": "module",
+
   "dependencies": {
     "@aws-sdk/client-s3": "^3.0.0",
     "@aws-sdk/s3-request-presigner": "^3.0.0"

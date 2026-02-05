@@ -29,7 +29,6 @@ exports.handler = async (event) => {
         const bucketName = record.s3?.bucket?.name;
         const s3Key = decodeURIComponent(record.s3?.object?.key.replace(/\+/g, ' '));
 
-        // console.log(`----Processing file: ${s3Key} from bucket: ${bucketName}`);
 
         const [geminiApiKey, mongoUri] = await Promise.all([
             cache.getGeminiAPiKey(),
@@ -70,7 +69,7 @@ exports.handler = async (event) => {
         const result = await pdfParserUtils.parseV2({ fileBuffer });
 
         const textFileName = `pdf_extracted_text_${documentId}_${Date.now()}.txt`;
-        const {} = await uploadTextToS3({documentId, result, textFileName, });
+        await uploadTextToS3({ result, textFileName });
 
 
         const chunkSize = process.env?.CHUNK_SIZE ? +process.env.CHUNK_SIZE : 60;
@@ -152,12 +151,11 @@ function extractFolderAndFileName(s3Key) {
 }
 
 
-async function uploadTextToS3({result, documentId}) {
-
+async function uploadTextToS3({result, textFileName}) {
     await awsService.uploadFile({
         fileBuffer: result.text,
         folder:  S3Folders.text_Files,
-        fileName: `pdf_extracted_text_${documentId}_${Date.now()}.txt`,
+        fileName: textFileName,
         mimeType: 'text/plain'
     });
 }
