@@ -1,10 +1,10 @@
-const {
+import  {
   S3Client,
   PutObjectCommand,
   GetObjectCommand
-} = require('@aws-sdk/client-s3');
+} from '@aws-sdk/client-s3';
 
-const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 /**
  * Shared AWS Service for app and Lambda functions
@@ -15,6 +15,7 @@ class AwsService {
   #bucketName;
   #accessKeyId;
   #secretAccessKey;
+  #sessionToken;
   #s3Client;
 
   constructor() {
@@ -22,6 +23,7 @@ class AwsService {
     this.#bucketName = process.env.BUCKET_NAME;
     this.#accessKeyId = process.env.AWS_ACCESS_KEY_ID;
     this.#secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
+    this.#sessionToken = process.env.AWS_SESSION_TOKEN;
     this.#s3Client = null;
   }
 
@@ -34,18 +36,17 @@ class AwsService {
     
     if (this.#s3Client) 
       return;
+    
     this.#region = process.env.AWS_REGION;
     this.#bucketName = process.env.BUCKET_NAME;
-    this.#accessKeyId = process.env.AWS_ACCESS_KEY_ID;
-    this.#secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
 
     if (!this.#region || !this.#bucketName) 
       throw new Error('AWS_REGION and BUCKET_NAME environment variables are required');
     
 
-    if (!this.#accessKeyId || !this.#secretAccessKey) 
-      throw new Error('AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY environment variables are required');
-    
+    const accessKeyId = process.env.AWS_ACCESS_KEY_ID;
+    const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
+    const sessionToken = process.env.AWS_SESSION_TOKEN;
 
 
     const clientConfig = {
@@ -53,10 +54,11 @@ class AwsService {
     };
 
 
-    if (this.#accessKeyId && this.#secretAccessKey) {
+    if (accessKeyId && secretAccessKey) {
       clientConfig.credentials = {
-        accessKeyId: this.#accessKeyId,
-        secretAccessKey: this.#secretAccessKey,
+        accessKeyId: accessKeyId,
+        secretAccessKey: secretAccessKey,
+        sessionToken: sessionToken,
       };
     }
 
@@ -289,8 +291,7 @@ class AwsService {
   }
 }
 
-// Export singleton instance
-const awsService = new AwsService();
-module.exports = awsService;
+
+export default new AwsService();
 
 

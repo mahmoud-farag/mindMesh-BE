@@ -1,4 +1,4 @@
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+import { GoogleGenAI } from '@google/genai';
 
 /**
  * Shared Gemini Service for app and Lambda functions
@@ -7,7 +7,7 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
  */
 class GeminiService {
   #geminiClient;
-  #modelType = 'gemini-2.0-flash-exp';
+  #modelType = 'gemini-2.5-flash';
   #apiKey;
 
   constructor() {
@@ -28,6 +28,7 @@ class GeminiService {
   }
 
   #ensureInitialized() {
+
     if (this.#geminiClient) {
       return;
     }
@@ -40,7 +41,7 @@ class GeminiService {
       throw new Error('GEMINI_API_KEY environment variable is required or call setApiKey() first');
     }
 
-    this.#geminiClient = new GoogleGenerativeAI(this.#apiKey);
+    this.#geminiClient = new GoogleGenAI({ apiKey: this.#apiKey });
   }
 
   set modelType(model) {
@@ -54,7 +55,7 @@ class GeminiService {
    * @param {number} params.numberOfFlashcards - Number of flashcards to generate
    * @param {object} params.awsService - AWS service instance for file operations
    * @param {object} params.DocumentModel - Mongoose Document model for updates
-   * @returns {Promise<Array>} Array of flashcard objects
+   * @returns {Promise<Array>} Array of flashcards
    */
   async generateFlashcards({ document, numberOfFlashcards, awsService, DocumentModel }) {
     this.#ensureInitialized();
@@ -76,10 +77,12 @@ class GeminiService {
         fileUri: validGeminiFileUri 
       });
 
-      const model = this.#geminiClient.getGenerativeModel({ model: this.#modelType });
-      const response = await model.generateContent({ contents });
+      const response = await this.#geminiClient.models.generateContent({
+        model: this.#modelType,
+        contents: contents
+      });
 
-      const generatedText = response.response.text();
+      const generatedText = response.text;
 
       const flashcards = [];
       const cards = generatedText.split('----').filter(card => card.trim());
@@ -155,9 +158,11 @@ class GeminiService {
         fileUri: validGeminiFileUri 
       });
 
-      const model = this.#geminiClient.getGenerativeModel({ model: this.#modelType });
-      const response = await model.generateContent({ contents });
-      const generatedText = response.response.text();
+      const response = await this.#geminiClient.models.generateContent({
+        model: this.#modelType,
+        contents: contents
+      });
+      const generatedText = response.text;
 
       const questions = [];
       const questionBlocks = generatedText.split('----').filter(question => question.trim());
@@ -225,9 +230,8 @@ class GeminiService {
         fileUri: validGeminiFileUri 
       });
 
-      const model = this.#geminiClient.getGenerativeModel({ model: this.#modelType });
-      const response = await model.generateContent({ contents });
-      const generatedText = response.response.text();
+      const response = await this.#geminiClient.models.generateContent({ model: this.#modelType, contents });
+      const generatedText = response.text;
 
       return generatedText;
 
@@ -260,9 +264,11 @@ class GeminiService {
         
         Answer:`;
 
-      const model = this.#geminiClient.getGenerativeModel({ model: this.#modelType });
-      const response = await model.generateContent(prompt);
-      const generatedText = response.response.text();
+      const response = await this.#geminiClient.models.generateContent({
+        model: this.#modelType,
+        contents: prompt
+      });
+      const generatedText = response.text;
 
       return generatedText;
 
@@ -292,9 +298,11 @@ class GeminiService {
         here is context:
         ${context}`;
 
-      const model = this.#geminiClient.getGenerativeModel({ model: this.#modelType });
-      const response = await model.generateContent(prompt);
-      const generatedText = response.response.text();
+      const response = await this.#geminiClient.models.generateContent({
+        model: this.#modelType,
+        contents: prompt
+      });
+      const generatedText = response.text;
 
       return generatedText;
 
@@ -314,15 +322,30 @@ class GeminiService {
   async generateEmbedding(text) {
     this.#ensureInitialized();
 
-    try {
-      const model = this.#geminiClient.getGenerativeModel({ model: "text-embedding-004" });
-      const result = await model.embedContent(text);
+    try { 
+      // const model = this.#geminiClient.getGenerativeModel({ model: "text-embedding-004" });
+      // const response = await model.embedContent(text);
 
-      if (!result.embedding || !result.embedding.values) {
+      // In @google/genai, use #geminiClient.models.embedContent directly
+      const response = await this.#geminiClient.models.embedContent({
+        model: "text-embedding-004",
+        contents: text, 
+        config: {
+          taskType: 'RETRIEVAL_QUERY', 
+        }
+      });
+
+      // if (!response.embedding || !response.embedding.values) {
+      //   throw new Error("No embedding returned from Gemini");
+      // }
+
+      // return result.embedding.values;
+
+      if (!response?.embeddings?.length) {
         throw new Error("No embedding returned from Gemini");
       }
 
-      return result.embedding.values;
+      return response.embeddings[0].values;
 
     } catch (error) {
       console.error('generateEmbedding:: Gemini API error:', error);
@@ -346,14 +369,30 @@ class GeminiService {
 
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
-        const model = this.#geminiClient.getGenerativeModel({ model: "text-embedding-004" });
-        const result = await model.embedContent(text);
+        // const model = this.#geminiClient.getGenerativeModel({ model: "text-embedding-004" });
+        // const response = await model.embedContent(text);
 
-        if (!result.embedding || !result.embedding.values) {
+        // In @google/genai, use #geminiClient.models.embedContent directly
+        const response = await this.#geminiClient.models.embedContent({
+          model: "text-embedding-004",
+          contents: text, 
+          config: {
+            taskType: 'RETRIEVAL_QUERY', 
+          }
+        });
+
+        // if (!response.embedding || !response.embedding.values) {
+        //   throw new Error("No embedding returned from Gemini");
+        // }
+
+        // return result.embedding.values;
+
+        if (!response?.embeddings?.length) {
           throw new Error("No embedding returned from Gemini");
         }
 
-        return result.embedding.values;
+        return result.embeddings[0].values;
+
 
       } catch (error) {
         const isRetryable = this.#isRetryableError(error);
@@ -392,6 +431,7 @@ class GeminiService {
   }
 
   async #validateGeminiUri(document, awsService, DocumentModel) {
+    
     let geminiFileUri;
     
     if (document?.geminiFileUri && document?.geminiUriExpirationDate && this.#isDateStillValid(document.geminiUriExpirationDate)) {
@@ -410,13 +450,33 @@ class GeminiService {
 
     let blob = new Blob([fileData], { type: mimeType });
 
-    const uploadResponse = await this.#geminiClient.fileManager.uploadFile(blob, {
-      mimeType: mimeType,
-      displayName: fileName,
-    });
+  
 
-    geminiFileUri = uploadResponse.file.uri;
-    const expirationTime = uploadResponse.file.expirationTime;
+   
+    const uploadResponse = await this.#geminiClient.files.upload({file: blob, config:{
+        mimeType: mimeType,
+        displayName: fileName,
+    }});
+
+  /*
+  an example of the uploadResponse contents
+  {
+    name: 'files/fxfvm13z88i1',
+    displayName: 'pdf_extracted_text_69837153e1d4d73d222a99d3_1770221918499.txt',
+    mimeType: 'text/plain',
+    sizeBytes: '8022',
+    createTime: '2026-02-04T18:14:47.077675Z',
+    updateTime: '2026-02-04T18:14:47.077675Z',
+    expirationTime: '2026-02-06T18:14:46.629790867Z',
+    sha256Hash: 'ZTdiOTAwODllMGUyZGM4Y2EwYjlhM2MzMzBmMTI1NDZhM2ZiMzk5NWU1MzAyMGRkM2U0ZWFmZmEzOWI5NTg3OA==',
+    uri: 'https://generativelanguage.googleapis.com/v1beta/files/fxfvm13z88i1',
+    state: 'ACTIVE',
+    source: 'UPLOADED'
+  } 
+  */
+ 
+    geminiFileUri = uploadResponse.uri;
+    const expirationTime = uploadResponse.expirationTime;
 
     fileData = blob = null;
 
@@ -454,6 +514,5 @@ class GeminiService {
   }
 }
 
-const geminiService = new GeminiService();
-module.exports = geminiService;
+export default new GeminiService();
 

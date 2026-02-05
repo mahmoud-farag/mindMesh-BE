@@ -5,7 +5,7 @@ const { DocumentChunk } = require('@mindmesh/shared-models');
  * Helper function to handle chunk batches
  * Generates embeddings and saves chunks to database
  */
-exports.handleChunkBatch = async function (params) {
+async function handleChunkBatch (params) {
     const { batch, userId, documentId } = params;
 
     // Generate embeddings in parallel
@@ -43,3 +43,5 @@ exports.handleChunkBatch = async function (params) {
 
     return { success: successCount, failed: failedCount };
 }
+
+module.exports = handleChunkBatch;

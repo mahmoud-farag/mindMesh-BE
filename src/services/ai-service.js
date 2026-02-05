@@ -2,7 +2,8 @@ import { Document, FlashCard, Quiz, DocumentChunk, ChatHistory } from '@mindmesh
 import { customErrors } from '../utils/index.js';
 import geminiService from '@mindmesh/shared-gemini-service';
 import mongoose from 'mongoose';
-
+import awsService from '@mindmesh/shared-aws-service';
+import models from '@mindmesh/shared-models';
 // it is a hack way as the json import is not supported in the current version of nodejs
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url)
@@ -106,10 +107,10 @@ aiService.generateSummary = async (params = {}) => {
 
         const document = await getDocument(documentId, userId);
 
-        const summary = await geminiService.generateSummary({ document });
+        const summary = await geminiService.generateSummary({ document, awsService, DocumentModel: models.Document });
 
 
-        return { summary: result };
+        return { summary: summary };
 
     } catch (error) {
 

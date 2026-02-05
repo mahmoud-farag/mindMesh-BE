@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "description": "Shared Gemini AI service for MindMesh app and Lambda functions",
   "main": "index.js",
+  "type": "module",
   "dependencies": {
-    "@google/generative-ai": "^0.21.0"
+    "@google/genai": "^1.31.0"
   },
   "keywords": [
     "gemini",

@@ -18,9 +18,7 @@ export class PdfProcessingStack extends cdk.Stack {
 
         const bucketName = 'mindmesh';
 
-        // ============================================
-        // 1. S3 Bucket Configuration
-        // ============================================
+
         this.bucket = new s3.Bucket(this, 'MindMeshDocumentsBucket', {
             bucketName: bucketName,
             versioned: false,
@@ -47,9 +45,7 @@ export class PdfProcessingStack extends cdk.Stack {
 
         console.log('--Creating S3 bucket:', bucketName);
 
-        // ============================================
-        // 2. Lambda Function for PDF Processing
-        // ============================================
+
         this.pdfProcessorLambda = new lambda.Function(this, 'PdfProcessorLambda', {
             runtime: lambda.Runtime.NODEJS_20_X,
             handler: 'index.handler',
@@ -67,12 +63,10 @@ export class PdfProcessingStack extends cdk.Stack {
             },
         });
 
-        // ============================================
-        // 3. IAM Permissions
-        // ============================================
 
-        // Grant Lambda permission to read from S3 bucket
-        this.bucket.grantRead(this.pdfProcessorLambda);
+
+        // Grant Lambda permission to read and write to S3 bucket
+        this.bucket.grantReadWrite(this.pdfProcessorLambda);
 
         // Grant Lambda permission to read SSM parameters
         this.pdfProcessorLambda.addToRolePolicy(
@@ -98,9 +92,7 @@ export class PdfProcessingStack extends cdk.Stack {
             })
         );
 
-        // ============================================
-        // 4. S3 Event Notification
-        // ============================================
+
         this.bucket.addEventNotification(
             s3.EventType.OBJECT_CREATED,
             new s3n.LambdaDestination(this.pdfProcessorLambda),
@@ -111,9 +103,7 @@ export class PdfProcessingStack extends cdk.Stack {
         );
         console.log('--S3 event notification configured');
 
-        // ============================================
-        // 5. Stack Outputs
-        // ============================================
+
         new cdk.CfnOutput(this, 'BucketName', {
             value: this.bucket.bucketName,
             description: 'S3 Bucket name for documents',
