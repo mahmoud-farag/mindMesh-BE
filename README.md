@@ -5,6 +5,7 @@ An AI-powered study assistant backend that helps students learn more effectively
 ## 🚀 Features
 
 ### Core Features
+
 - **User Authentication**: Secure JWT-based authentication with password hashing
 - **Document Management**: Upload, store, and manage PDF documents in AWS S3
 - **AI-Powered Learning Tools**:
@@ -17,6 +18,7 @@ An AI-powered study assistant backend that helps students learn more effectively
 - **Secure Storage**: AWS S3 integration with presigned URLs
 
 ### Infrastructure
+
 - **AWS CDK**: Infrastructure as Code for AWS resources
 - **Lambda Functions**: Serverless PDF processing
 - **S3 Event Triggers**: Automatic processing of uploaded PDFs
@@ -25,6 +27,7 @@ An AI-powered study assistant backend that helps students learn more effectively
 ## 🛠️ Tech Stack
 
 ### Backend
+
 - **Runtime**: Node.js (v20+)
 - **Framework**: Express.js
 - **Database**: MongoDB with Mongoose ODM
@@ -34,6 +37,7 @@ An AI-powered study assistant backend that helps students learn more effectively
 - **PDF Processing**: pdf-parse
 
 ### Infrastructure (CDK)
+
 - **AWS CDK**: TypeScript-based infrastructure
 - **Lambda Runtime**: Node.js 20.x
 - **IAM**: Fine-grained permissions for SSM and S3
@@ -49,17 +53,20 @@ An AI-powered study assistant backend that helps students learn more effectively
 ## 🔧 Installation
 
 ### 1. Clone the Repository
+
 ```bash
 git clone https://github.com/YOUR-USERNAME/mindMesh-BE.git
 cd mindMesh-BE
 ```
 
 ### 2. Install Dependencies
+
 ```bash
 npm install
 ```
 
 ### 3. Set Up Environment Variables
+
 Create a `.env` file in the root directory:
 
 ```env
@@ -74,6 +81,7 @@ GOOGLE_API_KEY=your_google_genai_api_key
 ```
 
 ### 4. Set Up AWS SSM Parameters
+
 Store sensitive credentials in AWS Systems Manager Parameter Store:
 
 ```bash
@@ -86,17 +94,30 @@ aws ssm put-parameter \
   --name "/mindMesh/geminiAPIKey" \
   --value "your-gemini-api-key" \
   --type "SecureString"
+  --value "your-gemini-api-key" \
+  --type "SecureString"
+```
+
+### 5. Configure AWS S3 Bucket
+
+Run the included script to automatically configure CORS and verify your S3 bucket settings. This is required for direct file uploads from the frontend.
+
+```bash
+node --env-file=.env scripts/oneGo/setup-s3.js
 ```
 
 ## 🚀 Running the Application
 
 ### Development Mode
+
 ```bash
 npm run dev
 ```
+
 The server will start on `http://localhost:3000` with hot-reload enabled.
 
 ### Production Mode
+
 ```bash
 npm start
 ```
@@ -106,26 +127,31 @@ npm start
 ### Deploy CDK Stacks
 
 1. **Navigate to CDK directory**:
+
    ```bash
    cd CDK
    ```
 
 2. **Install CDK dependencies**:
+
    ```bash
    npm install
    ```
 
 3. **Bootstrap CDK** (first time only):
+
    ```bash
    npx cdk bootstrap
    ```
 
 4. **Deploy all stacks**:
+
    ```bash
    npx cdk deploy --all
    ```
 
    Or deploy individually:
+
    ```bash
    npx cdk deploy S3Stack
    npx cdk deploy S3LambdaStack
@@ -139,11 +165,13 @@ npm start
 ### CDK Stacks Overview
 
 #### S3Stack
+
 - Creates S3 bucket for document storage
 - Configures CORS for frontend access
 - Enables versioning and encryption
 
 #### S3LambdaStack
+
 - Deploys Lambda function for PDF processing
 - Sets up S3 event triggers (ObjectCreated)
 - Configures IAM permissions for SSM and S3 access
@@ -152,46 +180,51 @@ npm start
 ## 📡 API Endpoints
 
 ### Authentication (`/api/auth`)
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| POST | `/register` | Register new user | No |
-| POST | `/login` | Login user | No |
-| GET | `/profile` | Get user profile | Yes |
-| PATCH | `/change-password` | Change password | Yes |
+
+| Method | Endpoint           | Description       | Auth Required |
+| ------ | ------------------ | ----------------- | ------------- |
+| POST   | `/register`        | Register new user | No            |
+| POST   | `/login`           | Login user        | No            |
+| GET    | `/profile`         | Get user profile  | Yes           |
+| PATCH  | `/change-password` | Change password   | Yes           |
 
 ### Documents (`/api/document`)
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| POST | `/upload-pdf` | Upload PDF document | Yes |
-| GET | `/` | Get all user documents | Yes |
-| GET | `/:id` | Get specific document | Yes |
-| DELETE | `/:id` | Delete document | Yes |
+
+| Method | Endpoint      | Description            | Auth Required |
+| ------ | ------------- | ---------------------- | ------------- |
+| POST   | `/upload-pdf` | Upload PDF document    | Yes           |
+| GET    | `/`           | Get all user documents | Yes           |
+| GET    | `/:id`        | Get specific document  | Yes           |
+| DELETE | `/:id`        | Delete document        | Yes           |
 
 ### AI Features (`/api/ai`)
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| POST | `/generate-flashcards` | Generate flashcards from document | Yes |
-| POST | `/generate-quiz` | Generate quiz from document | Yes |
-| POST | `/generate-summary` | Generate document summary | Yes |
-| POST | `/chat` | Chat with document | Yes |
-| POST | `/explain-concept` | Get AI explanation | Yes |
-| GET | `/chat-history/:documentId` | Get chat history | Yes |
+
+| Method | Endpoint                    | Description                       | Auth Required |
+| ------ | --------------------------- | --------------------------------- | ------------- |
+| POST   | `/generate-flashcards`      | Generate flashcards from document | Yes           |
+| POST   | `/generate-quiz`            | Generate quiz from document       | Yes           |
+| POST   | `/generate-summary`         | Generate document summary         | Yes           |
+| POST   | `/chat`                     | Chat with document                | Yes           |
+| POST   | `/explain-concept`          | Get AI explanation                | Yes           |
+| GET    | `/chat-history/:documentId` | Get chat history                  | Yes           |
 
 ### Flashcards (`/api/flashcard`)
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| GET | `/` | Get all flashcard sets | Yes |
-| GET | `/:id` | Get specific flashcard set | Yes |
-| DELETE | `/:id` | Delete flashcard set | Yes |
-| PATCH | `/:setId/flashcard/:flashcardId/favorite` | Toggle favorite | Yes |
+
+| Method | Endpoint                                  | Description                | Auth Required |
+| ------ | ----------------------------------------- | -------------------------- | ------------- |
+| GET    | `/`                                       | Get all flashcard sets     | Yes           |
+| GET    | `/:id`                                    | Get specific flashcard set | Yes           |
+| DELETE | `/:id`                                    | Delete flashcard set       | Yes           |
+| PATCH  | `/:setId/flashcard/:flashcardId/favorite` | Toggle favorite            | Yes           |
 
 ### Quizzes (`/api/quiz`)
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| GET | `/` | Get all quizzes | Yes |
-| GET | `/:id` | Get specific quiz | Yes |
-| DELETE | `/:id` | Delete quiz | Yes |
-| POST | `/:id/submit` | Submit quiz answers | Yes |
+
+| Method | Endpoint      | Description         | Auth Required |
+| ------ | ------------- | ------------------- | ------------- |
+| GET    | `/`           | Get all quizzes     | Yes           |
+| GET    | `/:id`        | Get specific quiz   | Yes           |
+| DELETE | `/:id`        | Delete quiz         | Yes           |
+| POST   | `/:id/submit` | Submit quiz answers | Yes           |
 
 ## 📁 Project Structure
 
@@ -234,6 +267,7 @@ mindMesh-BE/
 ## 🧪 Lambda Function Details
 
 ### PDF Processor Lambda
+
 - **Trigger**: S3 ObjectCreated events (`.pdf` files in `pdf-documents/` prefix)
 - **Runtime**: Node.js 20.x
 - **Timeout**: 5 minutes
@@ -244,6 +278,7 @@ mindMesh-BE/
   - KMS decrypt for SecureString parameters
 
 ### Updating Lambda Code
+
 Any changes to `/lambdas/pdf-processor/` require redeployment:
 
 ```bash
@@ -252,6 +287,7 @@ npx cdk deploy S3LambdaStack
 ```
 
 For faster development, use watch mode:
+
 ```bash
 npx cdk watch S3LambdaStack
 ```
@@ -276,30 +312,33 @@ npx cdk watch S3LambdaStack
 
 ## 📝 Environment Variables Reference
 
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `PORT` | Server port | Yes |
-| `MONGO_URI` | MongoDB connection string | Yes |
-| `JWT_SECRET` | Secret for JWT signing | Yes |
-| `AWS_ACCESS_KEY_ID` | AWS access key | Yes |
-| `AWS_SECRET_ACCESS_KEY` | AWS secret key | Yes |
-| `AWS_REGION` | AWS region | Yes |
-| `AWS_BUCKET_NAME` | S3 bucket name | Yes |
-| `GOOGLE_API_KEY` | Google Generative AI API key | Yes |
+| Variable                | Description                  | Required |
+| ----------------------- | ---------------------------- | -------- |
+| `PORT`                  | Server port                  | Yes      |
+| `MONGO_URI`             | MongoDB connection string    | Yes      |
+| `JWT_SECRET`            | Secret for JWT signing       | Yes      |
+| `AWS_ACCESS_KEY_ID`     | AWS access key               | Yes      |
+| `AWS_SECRET_ACCESS_KEY` | AWS secret key               | Yes      |
+| `AWS_REGION`            | AWS region                   | Yes      |
+| `AWS_BUCKET_NAME`       | S3 bucket name               | Yes      |
+| `GOOGLE_API_KEY`        | Google Generative AI API key | Yes      |
 
 ## 🐛 Troubleshooting
 
 ### CDK Deployment Issues
+
 - Ensure AWS credentials are configured: `aws configure`
 - Check CDK bootstrap: `npx cdk bootstrap`
 - Verify SSM parameters exist in the correct region
 
 ### Lambda Errors
+
 - Check CloudWatch Logs for the Lambda function
 - Verify IAM permissions are correctly set
 - Ensure SSM parameters are accessible
 
 ### MongoDB Connection Issues
+
 - Verify MongoDB is running
 - Check connection string format
 - Ensure network access (for MongoDB Atlas)
