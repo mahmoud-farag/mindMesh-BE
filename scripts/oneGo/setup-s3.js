@@ -1,5 +1,5 @@
 import 'dotenv/config'; // Load environment variables
-import awsService from './src/services/aws-service.js';
+import awsService from '../../src/services/aws-service.js';
 
 async function setupS3() {
     try {
@@ -10,7 +10,7 @@ async function setupS3() {
             {
                 AllowedHeaders: ["*"],
                 AllowedMethods: ["GET", "PUT", "POST", "HEAD"],
-                AllowedOrigins: ["http://localhost:5173", "http://localhost:3000", "*"],
+                AllowedOrigins: ["http://localhost:5173", "https://mindmeshf.vercel.app"],
                 ExposeHeaders: [],
                 MaxAgeSeconds: 3000
             }
@@ -19,9 +19,9 @@ async function setupS3() {
         console.log('Applying CORS policy...');
         await awsService.setCorsPolicy(corsRules);
 
-        console.log('✅ S3 CORS policy configured successfully!');
+        console.log('S3 CORS policy configured successfully!');
     } catch (error) {
-        console.error('❌ Failed to setup S3:', error);
+        console.error('Failed to setup S3:', error);
         process.exit(1);
     }
 }

@@ -1,7 +1,8 @@
 import {
   S3Client,
   PutObjectCommand,
-  GetObjectCommand
+  GetObjectCommand,
+  PutBucketCorsCommand
 } from "@aws-sdk/client-s3";
 
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
@@ -254,6 +255,32 @@ class AwsService {
       console.error(`aws::getPutSignedUrl:\n`, error);
       if (error instanceof CustomError) throw error;
       else throw new InternalServerError('Failed to generate PUT signed URL');
+    }
+  }
+
+  /**
+   * Sets the CORS policy for the S3 bucket.
+   * @param {Array} corsRules - The CORS rules to apply.
+   * @returns {Promise<void>}
+   * @throws {InternalServerError} If setting the policy fails.
+   */
+  async setCorsPolicy(corsRules) {
+    try {
+      console.log('aws::setCorsPolicy started');
+
+      const command = new PutBucketCorsCommand({
+        Bucket: this.#bucketName,
+        CORSConfiguration: {
+          CORSRules: corsRules,
+        },
+      });
+
+      await this.#s3Client.send(command);
+      console.log('aws::setCorsPolicy finished');
+
+    } catch (error) {
+      console.error(`aws::setCorsPolicy Error:\n`, error);
+      throw new InternalServerError('Failed to set CORS policy for S3 bucket');
     }
   }
 
