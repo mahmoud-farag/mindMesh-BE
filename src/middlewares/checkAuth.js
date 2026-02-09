@@ -4,7 +4,6 @@ import { STATUS_CODES } from '../common/index.js';
 
 const checkAuth = async (req, res, next) => {
   try {
-
     const authHeader = req.headers.authorization;
 
     // 2. Check if header exists and starts with "Bearer"

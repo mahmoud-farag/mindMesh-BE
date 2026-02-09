@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import customErrors from './customErrors.js';
+import customErrors from '../../shared/utils/customErrors.js';
 
 
 const {BadRequestError, InternalServerError, CustomError} = customErrors;

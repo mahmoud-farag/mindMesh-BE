@@ -5,7 +5,6 @@ import { checkAuth, pagination  } from '../middlewares/index.js';
 
 const router = express.Router();
 
-
 router.post('/generate-flashcards', checkAuth, aiController.generateFlashcards);
 router.post('/generate-quiz', checkAuth, aiController.generateQuiz);
 router.post('/generate-summary', checkAuth, aiController.generateSummary);

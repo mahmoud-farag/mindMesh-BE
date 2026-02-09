@@ -1,9 +1,13 @@
 import { GoogleGenAI } from '@google/genai';
+import awsService from '@mindmesh/shared-aws-service';
+import customErrors from '../../utils/customErrors.js';
+
+const { InternalServerError } = customErrors;
 
 /**
  * Shared Gemini Service for app and Lambda functions
  * Provides full AI functionality: flashcards, quizzes, summaries, chat, embeddings
- * Note: Some methods require awsService and Document model to be passed as dependencies
+ * Note: Document model must be passed as dependency
  */
 class GeminiService {
   #geminiClient;
@@ -53,11 +57,11 @@ class GeminiService {
    * @param {object} params
    * @param {object} params.document - Document object with extractedText
    * @param {number} params.numberOfFlashcards - Number of flashcards to generate
-   * @param {object} params.awsService - AWS service instance for file operations
+   * @param {object} params.awsService - [DEPRECATED] AWS service instance (now imported directly)
    * @param {object} params.DocumentModel - Mongoose Document model for updates
    * @returns {Promise<Array>} Array of flashcards
    */
-  async generateFlashcards({ document, numberOfFlashcards, awsService, DocumentModel }) {
+  async generateFlashcards({ document, numberOfFlashcards, DocumentModel }) {
     this.#ensureInitialized();
 
     try {
@@ -69,7 +73,7 @@ class GeminiService {
         
         Separate each flashcard with "----"`;
 
-      const validGeminiFileUri = await this.#validateGeminiUri(document, awsService, DocumentModel);
+      const validGeminiFileUri = await this.#validateGeminiUri(document, DocumentModel);
 
       const contents = this.#PrepareModelContents({ 
         prompt, 
@@ -115,13 +119,7 @@ class GeminiService {
         return flashcards;
 
     } catch (error) {
-      console.error('generateFlashcards:: Gemini API error:\n', error);
-      let errMsg = 'Failed to generate flashcards';
-      if (error.status === 429) {
-        errMsg = 'You exceeded your current quota, try again in another time';
-      }
-      if ([503].includes(error.status)) errMsg = error.message;
-      throw new Error(errMsg);
+      this.#handleError(error, 'generateFlashcards');
     }
   }
 
@@ -130,11 +128,11 @@ class GeminiService {
    * @param {object} params
    * @param {object} params.document - Document object
    * @param {number} params.numQuestions - Number of questions
-   * @param {object} params.awsService - AWS service instance
+   * @param {object} params.awsService - [DEPRECATED] AWS service instance (now imported directly)
    * @param {object} params.DocumentModel - Document model
    * @returns {Promise<Array>} Array of question objects
    */
-  async generateQuiz({ document, numQuestions = 5, awsService, DocumentModel }) {
+  async generateQuiz({ document, numQuestions = 5, DocumentModel }) {
     this.#ensureInitialized();
 
     try {
@@ -151,7 +149,7 @@ class GeminiService {
         
         Separate questions with "----"`;
 
-      const validGeminiFileUri = await this.#validateGeminiUri(document, awsService, DocumentModel);
+      const validGeminiFileUri = await this.#validateGeminiUri(document, DocumentModel);
       const contents = this.#PrepareModelContents({ 
         prompt, 
         mimeType: document.extractedText.mimeType, 
@@ -201,10 +199,7 @@ class GeminiService {
         return questions;
 
     } catch (error) {
-      console.error('generateQuiz:: Gemini API error:\n', error);
-      let errMsg = 'Failed to generate quiz';
-      if ([429, 503].includes(error.code)) errMsg = error.message;
-      throw new Error(errMsg);
+      this.#handleError(error, 'generateQuiz');
     }
   }
 
@@ -212,18 +207,18 @@ class GeminiService {
    * Generate summary from document
    * @param {object} params
    * @param {object} params.document - Document object
-   * @param {object} params.awsService - AWS service instance
+   * @param {object} params.awsService - [DEPRECATED] AWS service instance (now imported directly)
    * @param {object} params.DocumentModel - Document model
    * @returns {Promise<string>} Summary text
    */
-  async generateSummary({ document, awsService, DocumentModel }) {
+  async generateSummary({ document, DocumentModel }) {
     this.#ensureInitialized();
 
     try {
       const prompt = `Provide a concise summary of the following text, highlighting the key concepts, main ideas, and important details.
         Keep the summary clear and structured.`;
 
-      const validGeminiFileUri = await this.#validateGeminiUri(document, awsService, DocumentModel);
+      const validGeminiFileUri = await this.#validateGeminiUri(document, DocumentModel);
       const contents = this.#PrepareModelContents({ 
         prompt, 
         mimeType: document.extractedText.mimeType, 
@@ -236,10 +231,7 @@ class GeminiService {
       return generatedText;
 
     } catch (error) {
-      console.error('generateSummary:: Gemini API error:\n', error);
-      let errMsg = 'Failed to generate summary';
-      if ([429, 503].includes(error.code)) errMsg = error.message;
-      throw new Error(errMsg);
+      this.#handleError(error, 'generateSummary');
     }
   }
 
@@ -273,10 +265,7 @@ class GeminiService {
       return generatedText;
 
     } catch (error) {
-      console.error('chatWithContext:: Gemini API error:\n', error);
-      let errMsg = 'Failed to process chat request';
-      if ([429, 503].includes(error.code)) errMsg = error.message;
-      throw new Error(errMsg);
+      this.#handleError(error, 'chatWithContext');
     }
   }
 
@@ -307,10 +296,7 @@ class GeminiService {
       return generatedText;
 
     } catch (error) {
-      console.error('explainConcept:: Gemini API error:', error);
-      let errMsg = 'Failed to explain concept';
-      if ([429, 503].includes(error.code)) errMsg = error.message;
-      throw new Error(errMsg);
+      this.#handleError(error, 'explainConcept');
     }
   }
 
@@ -328,8 +314,10 @@ class GeminiService {
 
       // In @google/genai, use #geminiClient.models.embedContent directly
       const response = await this.#geminiClient.models.embedContent({
-        model: "text-embedding-004",
-        contents: text, 
+        // model: "text-embedding-004",
+        // contents: text, 
+        model: "gemini-embedding-001",  
+        contents: [{ role: "user", parts: [{ text }] }],  
         config: {
           taskType: 'RETRIEVAL_QUERY', 
         }
@@ -348,10 +336,7 @@ class GeminiService {
       return response.embeddings[0].values;
 
     } catch (error) {
-      console.error('generateEmbedding:: Gemini API error:', error);
-      let errMsg = 'Failed to generate embedding';
-      if ([429, 503].includes(error.code)) errMsg = error.message;
-      throw new Error(errMsg);
+      this.#handleError(error, 'generateEmbedding');
     }
   }
 
@@ -430,7 +415,7 @@ class GeminiService {
     return contents;
   }
 
-  async #validateGeminiUri(document, awsService, DocumentModel) {
+  async #validateGeminiUri(document, DocumentModel) {
     
     let geminiFileUri;
     
@@ -511,6 +496,32 @@ class GeminiService {
 
   #sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+
+  #handleError(error, methodContext) {
+    console.error(`${methodContext}:: Gemini API error:\n`, error);
+    let errMsg = `Failed to ${methodContext}`;
+
+    if (methodContext === 'generateFlashcards') errMsg = 'Failed to generate flashcards';
+    if (methodContext === 'generateQuiz') errMsg = 'Failed to generate quiz';
+    if (methodContext === 'generateSummary') errMsg = 'Failed to generate summary';
+    if (methodContext === 'chatWithContext') errMsg = 'Failed to process chat request';
+    if (methodContext === 'explainConcept') errMsg = 'Failed to explain concept';
+    if (methodContext === 'generateEmbedding') errMsg = 'Failed to generate embedding';
+    
+    const errorCode = error.response?.status || error.status || error?.error?.code || error.code;
+    const errorMessage = error?.error?.message || error.message;
+
+    console.log('--errorCode:', errorCode);
+    console.log('--errorMessage:', errorMessage);
+    if (errorCode === 429) {
+      errMsg = 'You exceeded your current quota, try again later';
+    } else if ([503].includes(errorCode)) {
+      errMsg = errorMessage;
+    }
+
+    throw new InternalServerError(errMsg);
   }
 }
 

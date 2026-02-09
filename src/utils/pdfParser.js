@@ -1,6 +1,6 @@
 import fs from 'fs/promises';
 import { PDFParse } from 'pdf-parse';
-import customErrors from './customErrors.js';
+import customErrors from '../../shared/utils/customErrors.js';
 
 const { InternalServerError } = customErrors;
 /**

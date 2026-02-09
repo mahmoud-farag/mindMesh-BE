@@ -7,7 +7,7 @@ import { customErrors } from '../utils/index.js';
 const { BadRequestError, InternalServerError, CustomError } = customErrors;
 
 const errorHandler = (error, req, res, next) => {
-  console.log('Inside the globale error handler');
+  console.log('Inside the global error handler');
 
   if (!error)
     return next();
@@ -15,6 +15,7 @@ const errorHandler = (error, req, res, next) => {
   console.error('-----Global errorHandler------:\n', error);
 
   let customErr = error;
+  
 
   if (!(error instanceof CustomError)) {
 
@@ -36,7 +37,6 @@ const errorHandler = (error, req, res, next) => {
 
     if (error.name === 'JsonWebTokenError')
       return res.status(STATUS_CODES.UNAUTHORIZED).json({ success: false, message: 'Invalid authentication token.' });
-
 
     return res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ success: false, message: 'An internal server error occurred.' });
   }

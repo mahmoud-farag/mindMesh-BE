@@ -5,7 +5,8 @@
   "main": "index.js",
   "type": "module",
   "dependencies": {
-    "@google/genai": "^1.31.0"
+    "@google/genai": "^1.31.0",
+    "@mindmesh/shared-aws-service": "file:../aws-service"
   },
   "keywords": [
     "gemini",

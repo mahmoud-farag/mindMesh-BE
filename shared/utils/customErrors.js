@@ -1,4 +1,4 @@
-import { STATUS_CODES } from '../common/index.js';
+import STATUS_CODES from './statusCodes.js';
 
 class CustomError extends Error {
     constructor(message, code) {

@@ -1,1 +1,1 @@
-export  {default as STATUS_CODES } from './statusCodes-enums.js'
+export  {default as STATUS_CODES } from '../../shared/utils/statusCodes.js'
