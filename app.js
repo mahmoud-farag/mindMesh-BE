@@ -3,6 +3,8 @@ import './src/config/env.js';
 
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 
 
 import connectToDB from './src/config/db.js'
@@ -15,14 +17,31 @@ const { NotFoundError } = customErrors;
 const app = express();
 const PORT = process.env.PORT ?? 4000;
 
+
 app.use(cors({
-  origin: "*",      // DANGEROUS for Prod: Allows ANY website to call your API
+  origin: ['http://localhost:5173', 'https://mindmeshf.vercel.app/'],
   methods: ['GET', 'POST', 'DELETE', 'PATCH'],
-  credentials: true // Allow cookies/headers to be passed back and forth
+  credentials: true 
 }));
+ 
+
+// Security Middleware
+app.use(helmet());
+
+const limiter = rateLimit({
+  windowMs: 10 * 60 * 1000, // 10 minutes
+  max: 100, // limit only 100 req every 10 mins, after that an error will be sent to the user
+  message: { success: false, message: 'Too many requests from this IP, please try again after 15 minutes' },
+  standardHeaders: true, 
+  legacyHeaders: false, 
+});
+
+// Apply the rate limiting middleware to all requests
+app.use('/api', limiter);
 
 
-app.use(express.json());
+
+app.use(express.json({ limit: '10kb' }));
 
 // Routes
 app.use('/api/auth', authRoute);
