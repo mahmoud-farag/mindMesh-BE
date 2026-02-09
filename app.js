@@ -19,7 +19,7 @@ const PORT = process.env.PORT ?? 4000;
 
 
 app.use(cors({
-  origin: ['http://localhost:5173', 'https://mindmeshf.vercel.app/'],
+  origin: ['http://localhost:5173', 'https://mindmeshf.vercel.app'],
   methods: ['GET', 'POST', 'DELETE', 'PATCH'],
   credentials: true 
 }));
@@ -51,6 +51,9 @@ app.use('/api/ai', aiRoute);
 app.use('/api/quiz', quizRoute);
 app.use('/api/dashboard', dashboardRoute);
 
+app.use('/', (req, res) => {
+  res.status(200).json({ success: true, message: 'MindMesh Backend is running successfully!' });
+})
 
 // not found route
 app.use((req, res, next) => {
