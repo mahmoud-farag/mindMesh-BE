@@ -1,8 +1,8 @@
-const cache = require('./cache');
-const utils = require('./utils');
-const { S3Folders } = require('@mindmesh/shared-data');
+import cache from './cache.js';
+import * as utils from './utils.js';
+import { S3Folders } from '@mindmesh/shared-data';
 
-module.exports = {
+export {
     cache,
     utils,
     S3Folders,

@@ -1,5 +1,5 @@
-const geminiService = require('@mindmesh/shared-gemini-service');
-const { DocumentChunk } = require('@mindmesh/shared-models');
+import geminiService from '@mindmesh/shared-gemini-service';
+import { DocumentChunk } from '@mindmesh/shared-models';
 
 /**
  * Helper function to handle chunk batches
@@ -44,4 +44,4 @@ async function handleChunkBatch (params) {
     return { success: successCount, failed: failedCount };
 }
 
-module.exports = handleChunkBatch;
+export default handleChunkBatch;

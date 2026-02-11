@@ -1,8 +1,8 @@
-const handleChunkBatch = require('./handleChunkBatch');
-const pdfParserUtils = require('./pdfParser');
-const textChunkerUtils = require('./textChunker');
+import handleChunkBatch from './handleChunkBatch.js';
+import * as pdfParserUtils from './pdfParser.js';
+import * as textChunkerUtils from './textChunker.js';
 
-module.exports = {
+export {
     handleChunkBatch,
     pdfParserUtils,
     textChunkerUtils,

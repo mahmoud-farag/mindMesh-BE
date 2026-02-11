@@ -1,10 +1,8 @@
-const { cache, utils, S3Folders } = require('./utilities/index');
-
-const geminiService = require('@mindmesh/shared-gemini-service');
-const awsService = require('@mindmesh/shared-aws-service');
-
-const { Document } = require('@mindmesh/shared-models');
-const { handleChunkBatch, pdfParserUtils, textChunkerUtils } = require('./src/index');
+import { cache, utils, S3Folders } from './utilities/index.js';
+import geminiService from '@mindmesh/shared-gemini-service';
+import awsService from '@mindmesh/shared-aws-service';
+import { Document } from '@mindmesh/shared-models';
+import { handleChunkBatch, pdfParserUtils, textChunkerUtils } from './src/index.js';
 
 const BATCH_SIZE = 300;
 
@@ -12,7 +10,7 @@ const BATCH_SIZE = 300;
  * Lambda handler for processing PDF files uploaded to S3
  * Triggered by S3 ObjectCreated event
  */
-exports.handler = async (event) => {
+export const handler = async (event) => {
     console.log('---PDF Processor Lambda triggered');
     console.log('----Event:', JSON.stringify(event));
 

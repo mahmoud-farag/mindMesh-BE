@@ -3,6 +3,7 @@
     "version": "1.0.0",
     "description": "Lambda function to process PDF files from S3",
     "main": "index.js",
+    "type": "module",
     "scripts": {
         "test": "echo \"No tests yet\""
     },

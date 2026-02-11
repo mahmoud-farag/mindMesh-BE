@@ -194,4 +194,4 @@ function cleanText(text) {
   return cleanedText;
 }
 
-module.exports = { chunkTextV2 };
+export { chunkTextV2 };

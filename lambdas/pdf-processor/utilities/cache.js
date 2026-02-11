@@ -1,4 +1,4 @@
-const { SSMClient, GetParameterCommand } = require('@aws-sdk/client-ssm');
+import { SSMClient, GetParameterCommand } from '@aws-sdk/client-ssm';
 const ssmClient = new SSMClient({});
 
 
@@ -47,7 +47,4 @@ cache.getGeminiAPiKey = async () => {
 
 }
 
-module.exports =  cache ;
-
-
-
+export default cache;

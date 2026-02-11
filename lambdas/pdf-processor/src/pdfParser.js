@@ -60,4 +60,4 @@ const parseV2 = async (params = {}) => {
   }
 };
 
-module.exports = { parseV2 };
+export { parseV2 };

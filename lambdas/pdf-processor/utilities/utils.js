@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 // ✅ Add connection monitoring at module level (runs once per container)
 
@@ -27,7 +27,7 @@ const initializeConnectionMonitoring = () => {
 };
 
 
-const setDBConnection = async (mongoUri) => {
+export const setDBConnection = async (mongoUri) => {
 
     // readyState values:
     // 0 = disconnected
@@ -53,7 +53,7 @@ const setDBConnection = async (mongoUri) => {
  * @returns {string|null} - Document ID or null if not found
  * fileName example: Mahmoud_Farag_Dainin_Assessment_697525717c77a421dcc85797_1769284977548.pdf
  */
-function extractDocumentIdFromFilename(filename) {
+export function extractDocumentIdFromFilename(filename) {
 
     if(!filename)
         return null;
@@ -71,8 +71,3 @@ function extractDocumentIdFromFilename(filename) {
   
   return documentId || null;
 }
-
-
-
-
-module.exports = { setDBConnection, extractDocumentIdFromFilename };
