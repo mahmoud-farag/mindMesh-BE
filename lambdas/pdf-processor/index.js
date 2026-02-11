@@ -1,9 +1,9 @@
-import './polyfills.js';
 import { cache, utils, S3Folders } from './utilities/index.js';
 import geminiService from '@mindmesh/shared-gemini-service';
 import awsService from '@mindmesh/shared-aws-service';
 import { Document } from '@mindmesh/shared-models';
 import { handleChunkBatch, pdfParserUtils, textChunkerUtils } from './src/index.js';
+import mongoose from 'mongoose';
 
 const BATCH_SIZE = 300;
 
@@ -39,6 +39,9 @@ export const handler = async (event) => {
         }
 
         await utils.setDBConnection(mongoUri);
+        console.log('----DEBUG: mongoose.connection.readyState:', mongoose.connection.readyState);
+        console.log('----DEBUG: Document.db.readyState:', Document.db?.readyState);
+        console.log('----DEBUG: Same mongoose?', mongoose.connection === Document.db);
         geminiService.setApiKey(geminiApiKey);
 
         

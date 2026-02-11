@@ -1,8 +1,5 @@
-import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
-
-const S3Folders = require('./S3-folders.json');
-const statics = require('./statics.json');
+import S3Folders from './S3-folders.json' with { type: 'json' };
+import statics from './statics.json' with { type: 'json' };
 
 export {
     S3Folders,
