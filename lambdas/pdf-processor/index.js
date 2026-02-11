@@ -1,3 +1,4 @@
+import './polyfills.js';
 import { cache, utils, S3Folders } from './utilities/index.js';
 import geminiService from '@mindmesh/shared-gemini-service';
 import awsService from '@mindmesh/shared-aws-service';

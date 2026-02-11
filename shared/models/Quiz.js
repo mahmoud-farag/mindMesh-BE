@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const QuizSchema = new mongoose.Schema({
 
@@ -65,4 +65,4 @@ QuizSchema.index({ user: 1, document: 1 });
 
 const Quiz = mongoose.model('Quiz', QuizSchema);
 
-module.exports = Quiz;
+export default Quiz;

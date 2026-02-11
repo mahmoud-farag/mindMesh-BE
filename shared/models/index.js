@@ -1,11 +1,20 @@
-const User = require('./User');
-const Quiz = require('./Quiz');
-const FlashCard = require('./FlashCard');
-const Document = require('./Document');
-const ChatHistory = require('./ChatHistory');
-const DocumentChunk = require('./DocumentChunk');
+import User from './User.js';
+import Quiz from './Quiz.js';
+import FlashCard from './FlashCard.js';
+import Document from './Document.js';
+import ChatHistory from './ChatHistory.js';
+import DocumentChunk from './DocumentChunk.js';
 
-module.exports = {
+export {
+  User,
+  Quiz,
+  FlashCard,
+  Document,
+  ChatHistory,
+  DocumentChunk
+};
+
+export default {
   User,
   Quiz,
   FlashCard,

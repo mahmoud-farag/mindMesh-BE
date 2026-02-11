@@ -1,4 +1,4 @@
-const { PDFParse } = require('pdf-parse');
+import { PDFParse } from 'pdf-parse';
 
 /**
  * Extract text from PDF file with page separation (V2)
@@ -43,14 +43,14 @@ const parseV2 = async (params = {}) => {
       pagerender: render_page
     };
 
-    // pdf-parse expects a Buffer or Uint8Array
-    const parser = new PDFParse(new Uint8Array(fileBuffer), options);
-    const data = await parser.getText();
+    // pdf-parse v2: class-based API
+    const parser = new PDFParse({ data: new Uint8Array(fileBuffer) });
+    const data = await parser.getText(options);
 
     return {
       text: data.text,
-      numPages: data.numpages,
-      info: data.info,
+      numPages: data.total,
+      info: {},
       pages: pages
     };
 

@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Shared static data for MindMesh services",
   "main": "index.js",
+  "type": "module",
   "keywords": ["data", "shared", "constants"],
   "author": "mahmoud-farag",
   "license": "ISC"

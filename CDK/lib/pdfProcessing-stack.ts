@@ -55,7 +55,7 @@ export class PdfProcessingStack extends cdk.Stack {
             handler: 'handler',
             bundling: {
                 minify: true,
-                externalModules: ['@aws-sdk/*'], // Use AWS SDK v3 from Lambda runtime
+                externalModules: ['@aws-sdk/*'],
             },
             timeout: cdk.Duration.minutes(5),
             memorySize: 256,
