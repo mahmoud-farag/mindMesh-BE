@@ -1,4 +1,3 @@
-import { STATUS_CODES } from '../common/index.js';
 import { aiService } from '../services/index.js';
 import { handleSuccessResponse } from '../utils/index.js';
 
@@ -115,7 +114,7 @@ aiController.explainConcept = async (req, res, next) => {
             documentId: req.body.documentId,
             concept: req.body.concept,
             userId: req.user._id,
-        }
+        } 
 
         const result = await aiService.explainConcept(params);
 

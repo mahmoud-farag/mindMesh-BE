@@ -253,7 +253,6 @@ aiService.explainConcept = async (params = {}) => {
         const { documentId, userId, concept } = params;
 
         await getDocument(documentId, userId);
-
         // * Generate embedding for the question
         const conceptEmbedding = await geminiService.generateEmbedding(concept);
 
@@ -261,8 +260,13 @@ aiService.explainConcept = async (params = {}) => {
         const chunks = await getRelevantChunks({ emdbeddingQuery: conceptEmbedding, documentId, userId });
 
         // * Construct context
+
+        if (!chunks.length) {
+            return { answer : "I couldn't find any relevant information in the document to answer your question."};
+        } 
         const context = chunks.map((chunk, index) => `[Chunk ${index + 1} (Score: ${chunk.score.toFixed(2)})]\n${chunk.content}`).join('\n\n');
 
+     
         const answer = await geminiService.explainConcept({ context, concept });
 
 

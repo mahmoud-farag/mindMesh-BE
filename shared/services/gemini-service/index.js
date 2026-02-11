@@ -359,8 +359,8 @@ class GeminiService {
 
         // In @google/genai, use #geminiClient.models.embedContent directly
         const response = await this.#geminiClient.models.embedContent({
-          model: "text-embedding-004",
-          contents: text, 
+          model: "gemini-embedding-001",  
+          contents: [{ role: "user", parts: [{ text }] }],
           config: {
             taskType: 'RETRIEVAL_QUERY', 
           }
@@ -376,7 +376,7 @@ class GeminiService {
           throw new Error("No embedding returned from Gemini");
         }
 
-        return result.embeddings[0].values;
+        return response.embeddings[0].values;
 
 
       } catch (error) {
