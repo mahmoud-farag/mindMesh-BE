@@ -30,6 +30,7 @@ authController.login = async (req, res, next) => {
 
 authController.register = async (req, res, next) => {
   try {
+    throw new BadRequestError('New user registration is currently disabled.');
 
     validateReqBody(req.body);
 
