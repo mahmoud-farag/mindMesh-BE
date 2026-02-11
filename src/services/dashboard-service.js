@@ -68,7 +68,7 @@ dashboardService.getDashboardData = async (params = {}) => {
 
 
     // Recent activity
-    const recentDocuments = await Document.find({ user, status: { $ne: 'failed' } })
+    const recentDocuments = await Document.find({ user, status: 'ready' })
       .sort({ lastAccessed: -1 })
       .limit(5)
       .select('title originalFileName lastAccessed status');
