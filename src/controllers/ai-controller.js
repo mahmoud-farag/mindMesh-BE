@@ -77,6 +77,7 @@ aiController.generateSummary = async (req, res, next) => {
 
 aiController.chat = async (req, res, next) => {
     try {
+        console.log('aiController.chat:: started');
 
         
         if (!req.body?.documentId)

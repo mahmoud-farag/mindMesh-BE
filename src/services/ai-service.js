@@ -120,6 +120,7 @@ aiService.generateSummary = async (params = {}) => {
 
 aiService.chat = async (params = {}) => {
     try {
+        console.log('aiService.chat:: started');
 
         const { documentId, userId, question } = params;
 
@@ -153,15 +154,17 @@ aiService.chat = async (params = {}) => {
         //     }
         // ]);
 
+        let answer = '';
+
         if (!chunks.length) {
-            return "I couldn't find any relevant information in the document to answer your question.";
+            answer = "I couldn't find any relevant information in the document to answer your question.";
+        } else {
+            // * Construct context
+            const context = chunks.map((chunk, index) => `[Chunk ${index + 1} (Score: ${chunk.score.toFixed(2)})]\n${chunk.content}`).join('\n\n');
+
+            // * Ask Gemini
+            answer = await geminiService.chatWithContext({ context, question });
         }
-
-        // * Construct context
-        const context = chunks.map((chunk, index) => `[Chunk ${index + 1} (Score: ${chunk.score.toFixed(2)})]\n${chunk.content}`).join('\n\n');
-
-        // * Ask Gemini
-        const answer = await geminiService.chatWithContext({ context, question });
 
 
         // * handle history 
