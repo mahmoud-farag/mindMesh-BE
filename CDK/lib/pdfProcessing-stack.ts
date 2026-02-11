@@ -1,9 +1,11 @@
 import * as cdk from 'aws-cdk-lib/core';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
+import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs'; 
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as s3n from 'aws-cdk-lib/aws-s3-notifications';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import { Construct } from 'constructs';
+import * as path from 'path';
 
 /**
  * Unified stack that creates both S3 bucket and PDF processing Lambda
@@ -11,7 +13,7 @@ import { Construct } from 'constructs';
  */
 export class PdfProcessingStack extends cdk.Stack {
     public readonly bucket: s3.Bucket;
-    public readonly pdfProcessorLambda: lambda.Function;
+    public readonly pdfProcessorLambda: NodejsFunction;
 
     constructor(scope: Construct, id: string, props?: cdk.StackProps) {
         super(scope, id, props);
@@ -35,6 +37,7 @@ export class PdfProcessingStack extends cdk.Stack {
                     allowedOrigins: [
                         'http://localhost:5173',
                         'http://localhost:3000',
+                        'https://mindmeshf.vercel.app'
                         // Add production domains here
                     ],
                     exposedHeaders: ['ETag'],
@@ -46,11 +49,14 @@ export class PdfProcessingStack extends cdk.Stack {
         console.log('--Creating S3 bucket:', bucketName);
 
 
-        this.pdfProcessorLambda = new lambda.Function(this, 'PdfProcessorLambda', {
+        this.pdfProcessorLambda = new NodejsFunction(this, 'PdfProcessorLambda', {
             runtime: lambda.Runtime.NODEJS_20_X,
-            handler: 'index.handler',
-            // Simple! npm package handles shared models
-            code: lambda.Code.fromAsset('../lambdas/pdf-processor'),
+            entry: path.join(__dirname, '../../lambdas/pdf-processor/index.js'),
+            handler: 'handler',
+            bundling: {
+                minify: true,
+                externalModules: ['@aws-sdk/*'], // Use AWS SDK v3 from Lambda runtime
+            },
             timeout: cdk.Duration.minutes(5),
             memorySize: 256,
             description: 'Processes PDF files uploaded to S3',
