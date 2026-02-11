@@ -215,8 +215,10 @@ class GeminiService {
     this.#ensureInitialized();
 
     try {
-      const prompt = `Provide a concise summary of the following text, highlighting the key concepts, main ideas, and important details.
-        Keep the summary clear and structured.`;
+      const prompt = `Provide a very short and concise summary of the following text.
+        Limit the response to 3-7 sentences maximum.
+        Focus ONLY on the absolute key concepts and main ideas.
+        Do not include introductory or concluding fluff.`;
 
       const validGeminiFileUri = await this.#validateGeminiUri(document, DocumentModel);
       const contents = this.#PrepareModelContents({ 
@@ -281,8 +283,8 @@ class GeminiService {
 
     try {
       const prompt = `Explain the concept of "${concept}" based on the following context.
-        Provide a clear, educational explanation that's easy to understand.
-        Include examples if relevant.
+        Provide a very short, concise explanation (maximum 3-4 sentences).
+        Get straight to the point. Avoid fluff.
         
         here is context:
         ${context}`;

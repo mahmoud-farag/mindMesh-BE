@@ -17,8 +17,7 @@
         "@mindmesh/shared-gemini-service": "file:../../shared/services/gemini-service",
         "@mindmesh/shared-models": "file:../../shared/models",
         "bcryptjs": "^2.4.3",
-        "mongoose": "^9.0.1",
-        "pdf-parse": "^2.4.5"
+        "pdf-parse": "^1.1.1"
     },
     "keywords": [
         "lambda",

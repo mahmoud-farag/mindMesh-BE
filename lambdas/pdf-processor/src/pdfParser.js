@@ -1,7 +1,7 @@
-import { PDFParse } from 'pdf-parse';
+import pdfParse from 'pdf-parse';
 
 /**
- * Extract text from PDF file with page separation (V2)
+ * Extract text from PDF file with page separation (V1)
  * @param {object} params
  * @param {Buffer} params.fileBuffer - PDF file buffer
  * @returns {Promise<{text: string, numPages: number, pages: string[], info: object}>}
@@ -43,19 +43,17 @@ const parseV2 = async (params = {}) => {
       pagerender: render_page
     };
 
-    // pdf-parse v2: class-based API
-    const parser = new PDFParse({ data: new Uint8Array(fileBuffer) });
-    const data = await parser.getText(options);
+    const data = await pdfParse(fileBuffer, options);
 
     return {
       text: data.text,
-      numPages: data.total,
-      info: {},
+      numPages: data.numpages,
+      info: data.info,
       pages: pages
     };
 
   } catch (error) {
-    console.error("PDF parsing error (V2):", error);
+    console.error("PDF parsing error (V1):", error);
     throw new Error("Failed to extract text from PDF");
   }
 };

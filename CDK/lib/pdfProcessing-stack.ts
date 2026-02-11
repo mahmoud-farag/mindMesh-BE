@@ -1,6 +1,6 @@
 import * as cdk from 'aws-cdk-lib/core';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
-import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs'; 
+import { NodejsFunction, OutputFormat } from 'aws-cdk-lib/aws-lambda-nodejs'; 
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as s3n from 'aws-cdk-lib/aws-s3-notifications';
 import * as iam from 'aws-cdk-lib/aws-iam';
@@ -55,7 +55,10 @@ export class PdfProcessingStack extends cdk.Stack {
             handler: 'handler',
             bundling: {
                 minify: true,
+                format: OutputFormat.ESM,
                 externalModules: ['@aws-sdk/*'],
+                // Provide a `require` function for dependencies that use it internally
+                banner: "import { createRequire } from 'module'; const require = createRequire(import.meta.url);",
             },
             timeout: cdk.Duration.minutes(5),
             memorySize: 256,
